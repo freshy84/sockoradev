@@ -1,0 +1,180 @@
+<?php
+namespace App\Http\Controllers;
+use Illuminate\Http\Request;
+use Hash, Mail, Validator,Excel,Cookie,Auth,Session,DB,URL;
+use App\Models\Users, App\Models\EmailTemplate;
+
+
+class AuthenticateController extends Controller {
+
+    public function index(Request $request) {
+        $data = $request->all();
+        if ($data) {
+            $remember = isset($data ['remember']) ? true : false;
+
+            if ($remember) {
+                Session::put('remember', 'yes');
+            }
+
+            if(!isset($data['v_email']) || !isset($data['password'])) {
+                Session::remove('msg');
+                Session::flash('message', ERR_PWS);
+                return redirect()->to('/');
+            }
+
+            $admindata = auth()->guard('admin')->attempt(['v_email' => $data['v_email'], 'password' => $data['password'], 'e_status' => '1'], $remember);
+
+            if (!empty($admindata)) {
+                return redirect()->to('/dashboard');
+                
+            } else {
+                Session::remove('msg');
+                Session::flash('message', ERR_PWS);
+                return redirect()->to('/login');
+            }
+        }
+
+        return view('authenticate.login', array('title' => 'Login'));
+    }
+
+    public function dashboard(){
+        $responseData = array();
+        $responseData['User'] = Users::count();
+        return view('authenticate.dashboard', array('title' => 'Dashboard','responseData' => $responseData));
+	}
+
+    public function logout(){
+        auth()->guard('admin')->logout();
+        Session::remove('admin_logged_id');
+        Session::remove('admin_array');
+        Session::flash('msg', "You are successfully logged out.");
+        return redirect()->to('/');
+    }
+
+    public function randomPassword() {
+	    $alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
+	    $pass = array();
+	    $alphaLength = strlen($alphabet) - 1;
+	    for ($i = 0; $i < 60; $i++) {
+	        $n = rand(0, $alphaLength);
+	        $pass[] = $alphabet[$n];
+	    }
+	    return implode($pass);
+	}
+
+    public function forgot_password(Request $request) {
+        $data = $request->all();
+        if ($data && $request->has('v_email')) {
+            $user= Users::where('v_email', '=', e(trim($data['v_email'])))->first();
+            if(is_null($user) ) {
+                Session::flash('message', INVALID_EMAIL); // Message of invalid email
+                Session::set('FORGOTPASS_FLAG', '1');
+                return redirect()->to('/');
+            } else {
+                $v_access_code= str_random(10);
+                $user->v_reset_pass_token = $v_access_code; // random access_code
+                if ($user->save()) {
+                    $objEmailTemplate = EmailTemplate::find(1)->toArray();
+                    $strTemplate = $objEmailTemplate['t_body'];
+                    $strTemplate = str_replace('[SITE_NAME]', SITE_NAME, $strTemplate);
+                    $strTemplate = str_replace('[SITE_URL]', SITE_URL, $strTemplate);
+                    $strTemplate = str_replace('../', SITE_URL, $strTemplate);
+                    $strTemplate = str_replace('[LINK]', SITE_URL.'reset-password/'.$v_access_code, $strTemplate);
+                    $strTemplate = str_replace('[USERNAME]', $user->v_firstname." ".$user->v_lastname, $strTemplate);
+
+                    // mail sent to user with new link
+                    Mail::send('emails.auth.generate-email-template', array('strTemplate'=>$strTemplate), function($message) use ($user)
+                    {
+                      $message->from(CONTACT_EMAIL_ID);
+                      $message->to($user->v_email);
+                      $message->replyTo(CONTACT_EMAIL_ID);
+                      $message->subject($user->v_subject);
+                    });
+                    Session::flash('msg', PWD_SENT);
+                    Session::remove('FORGOTPASS_FLAG');
+                    return redirect()->to('/');
+                }
+            }
+        }
+        exit;
+    }
+
+    public function reset_password(Request $request, $code)
+	{
+		$records = Users::where('v_reset_pass_token' , '=' , $code)->first();
+        if( $records['v_reset_pass_token'] == ''){
+            return redirect()->to('/');
+        }
+        $id = $records['id'];
+        $rec = Users::find($id);
+        if(request()->all()){
+            $inputs = request()->all();
+            if($inputs['password'] != "" && $inputs['confirm_password'] != "" && $inputs['password'] == $inputs['confirm_password']) {
+                $rec->password = Hash::make($inputs['password']);
+                $rec->v_reset_pass_token = '';
+                $rec->save();
+                Session::flash('msg', PASSWORD_SUCCESS);
+                Session::remove('FORGOTPASS_FLAG');
+                return redirect()->to('/');
+
+            } else{
+                Session::flash('message', 'Invalid Password');
+            }
+		}
+        return View('authenticate.reset_password')->with('record' , $records)->with('title' , 'Reset Password');
+	}
+
+    public function my_profile(Request $request)
+	{
+        $records = auth()->guard('admin')->user();
+        $id = $records['id'];
+		if($request->all()) {
+            $inputs = $request->all();
+
+            $validator = Validator::make($inputs, array("v_email" =>'unique:users,v_email,' . $id . ''));
+            if ($validator->fails()) {
+                return json_encode($validator->errors());
+            } else{
+                $records->v_email = trim($inputs['v_email']);
+                $records->v_firstname = trim($inputs['v_firstname']);
+                $records->v_lastname = trim($inputs['v_lastname']);
+    			if($inputs['password_new'] != "" && $inputs['password_retype'] != "" && $inputs['password_new'] == $inputs['password_retype']) {
+    				$records->password = Hash::make($inputs['password_new']);
+                    $records->remember_token = '';
+    			}
+                if (isset($inputs['imgbase64']) && $inputs['imgbase64'] != '') {
+                    $profileImgPath = USER_PROFILE_IMAGE_PATH;
+                    $profileImgThumbPath = USER_PROFILE_THUMB_IMAGE_PATH;
+                    $imageName = $this->cropImages($inputs['imgbase64'], $inputs['x'], $inputs['y'], $inputs['h'], $inputs['w'], $profileImgPath, $profileImgThumbPath);
+                    @unlink(USER_PROFILE_THUMB_IMAGE_PATH . $records->v_profile_image);
+                    @unlink(USER_PROFILE_IMAGE_PATH . ($records->v_profile_image));
+                    $records->v_profile_image = $imageName;
+
+                } else {
+                    $records->v_profile_image = '';
+                }
+                
+    			if($records->save()){
+                    return json_encode(['status' => 'TRUE', 'image' => $records->v_profile_image]);
+                }
+            }
+		} else{
+		      return View('authenticate.my_profile',array('title'=>'My Profile','records' => $records));
+		}
+	}
+
+	public function check_base64_image($base64) {
+        $img = imagecreatefromstring(base64_decode($base64));
+        if (!$img) {
+            return false;
+        }
+        imagepng($img, 'tmp.png');
+        $info = getimagesize('tmp.png');
+        unlink('tmp.png');
+        if ($info[0] > 0 && $info[1] > 0 && $info['mime']) {
+            return true;
+        }
+        return false;
+    }
+
+ }

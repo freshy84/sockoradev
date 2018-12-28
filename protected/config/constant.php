@@ -24,7 +24,7 @@ define('HTML_VERSION', '?ver=v.0.0.1');
 define('ADMIN_JS_VERSION', '?ver=v.0.0.1');
 define('ADMIN_CSS_VERSION', '?ver=v.0.0.1');
 
-$SITE_URL = url('')."/";
+$SITE_URL = /* url(''). */"https://app.sockora.com/";
 
 define('CONTACT_EMAIL_ID', 'testing.demo@gmail.com');
 define('LABEL_SITE_NAME', 'Shopify Laravel');

@@ -9,9 +9,23 @@ class AuthenticateController extends Controller {
 
 
     public function checkDB(Request $request) {
-        $shops = Shops::all();
-        pr($shops);
+        $shop = new Shops();
+        $shop->shopify_domain = 'sockora-dev.myshopify.com';
+        $shop->shopify_token = '78214cf97ff0385b14b6183f5fac50ce';
+        $shop->created_at =  '2018-12-22 12:00:30';
+        $shop->updated_at = '2018-12-22 12:07:13';
+        $shop->grandfathered = 0;
+        $shop->deleted_at = null;
+        $shop->namespace = null;
+        $shop->plan_id = null;
+        $shop->freemium = 0;
+        if($shop->save()) {
+            echo 'saved';
+        } else {
+            echo 'not saved';
+        }
         exit;
+        //INSERT INTO `shops` (`id`, `shopify_domain`, `shopify_token`, `created_at`, `updated_at`, `grandfathered`, `deleted_at`, `namespace`, `plan_id`, `freemium`) VALUES (1, 'sockora-dev.myshopify.com', '78214cf97ff0385b14b6183f5fac50ce', '2018-12-22 12:00:30', '2018-12-22 12:07:13', 0, NULL, NULL, NULL, 0);
     }
 
     public function index(Request $request) {

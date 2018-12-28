@@ -11,7 +11,7 @@
 |
 */
 
-Route::any('/order-webhook', array('uses' => 'AuthenticateController@orderWebhook'));
+// Route::any('/order-webhook', array('uses' => 'AuthenticateController@orderWebhook'));
 
 Route::any('/check', array('uses' => 'AuthenticateController@checkDB'));
 Route::get('/app-install', function () {

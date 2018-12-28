@@ -10,9 +10,9 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/', function () {
+Route::get('/app-install', function () {
     return view('welcome');
-})->middleware(['auth.shop'])->name('home');
+});
 
 
 Route::group(array('middleware' => 'guest'),function(){

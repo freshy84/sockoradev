@@ -14,6 +14,11 @@ class OrdersController extends Controller {
     }
     
     public function anyListAjax(Request $request) {
+        $return_data = [];
+        $return_data['recordsTotal'] = 0;
+        $return_data['recordsFiltered'] = 0;
+        $return_data['data'] = [];
+
         $data = $request->all();        
         $shop = Shops::where('shopify_domain', env('SHOPIFY_DOMAIN'))->first();
         if($shop) {

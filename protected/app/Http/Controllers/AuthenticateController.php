@@ -2,10 +2,17 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Hash, Mail, Validator,Excel,Cookie,Auth,Session,DB,URL;
-use App\Models\Users, App\Models\EmailTemplate;
+use App\Models\Users, App\Models\EmailTemplate, App\Models\Shops;
 
 
 class AuthenticateController extends Controller {
+
+
+    public function checkDB(Request $request) {
+        $shops = Shops::all();
+        pr($shops);
+        exit;
+    }
 
     public function index(Request $request) {
         $data = $request->all();

@@ -10,6 +10,9 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::any('/order-webhook', array('uses' => 'AuthenticateController@orderWebhook'));
+
 Route::any('/check', array('uses' => 'AuthenticateController@checkDB'));
 Route::get('/app-install', function () {
     return view('welcome');

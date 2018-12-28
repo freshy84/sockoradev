@@ -28,6 +28,19 @@ class AuthenticateController extends Controller {
         //INSERT INTO `shops` (`id`, `shopify_domain`, `shopify_token`, `created_at`, `updated_at`, `grandfathered`, `deleted_at`, `namespace`, `plan_id`, `freemium`) VALUES (1, 'sockora-dev.myshopify.com', '78214cf97ff0385b14b6183f5fac50ce', '2018-12-22 12:00:30', '2018-12-22 12:07:13', 0, NULL, NULL, NULL, 0);
     }
 
+    public function orderWebhook(Request $request) {
+        $data = $request->all();
+        
+        file_put_contents(TEMP_IMG_PATH.'res1.txt', 'Date - '. date('Y-m-d h-i-s A') .'\n\n\n'.print_r($data, true));
+        file_put_contents(TEMP_IMG_PATH.'res2.txt', print_r(file_get_contents('php://input'), true));
+
+        Mail::raw(print_r($data, true), function($message)  {
+            $message->to('raghavrangani@gmail.com');
+        });
+
+        return 'Done';
+    }
+    
     public function index(Request $request) {
         $data = $request->all();
         if ($data) {

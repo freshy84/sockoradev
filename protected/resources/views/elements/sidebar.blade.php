@@ -44,7 +44,7 @@
 
         <li class="<?= $curr_controller == "Orders" ? 'active' : null ?>">
             <a href="{{action('OrdersController@getIndex')}}" data-container="body" data-placement="bottom" data-html="true" >
-                <i class="fa fa-users"></i>
+                <i class="fa fa-shopping-cart"></i>
                 <span class="title">Orders</span>
             </a>
         </li>

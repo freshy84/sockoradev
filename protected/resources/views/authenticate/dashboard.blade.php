@@ -43,7 +43,7 @@
                 <div class="dashboard-stat green-meadow">
                     <a href="{{ SITE_URL.'orders' }}" style="text-decoration: none;">
                         <div class="visual">
-                            <i class="fa fa-envelope"></i>
+                            <i class="fa fa-shopping-cart"></i>
                         </div>
                         <div class="details">
                             <div class="number">

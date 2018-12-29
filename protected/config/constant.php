@@ -25,8 +25,8 @@ define('HTML_VERSION', '?ver=v.0.0.1');
 $SITE_URL = /* url(''). */"https://app.sockora.com/";
 
 define('CONTACT_EMAIL_ID', 'testing.demo@gmail.com');
-define('LABEL_SITE_NAME', 'Shopify Laravel');
-define('SITE_NAME', 'Shopify Laravel');
+define('LABEL_SITE_NAME', 'Sockora Admin');
+define('SITE_NAME', 'Sockora Admin');
 define('SITE_URL', $SITE_URL);
 define('SITE_YEAR', '2018');
 define('ASSET_URL', SITE_URL."assets/");

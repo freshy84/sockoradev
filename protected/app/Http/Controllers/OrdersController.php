@@ -1,19 +1,99 @@
 <?php
 namespace App\Http\Controllers;
 use Hash, Mail, Session, Redirect, Validator, Excel, Cookie, DB, Config;
-use App\Models\Users, App\Models\Shops;
+use App\Models\Orders, App\Models\Shops, App\Models\LineItems, App\Models\LineItemProperty;
 use Illuminate\Http\Request;
 use OhMyBrew\BasicShopifyAPI;
 
 class OrdersController extends Controller {
     
-    public function getIndex()
-    {     
+    public function getIndex() {     
         $auth_user = auth()->guard('admin')->user();
         return View('orders.index',array('title' => 'Orders List', 'auth_user' => $auth_user));
     }
     
     public function anyListAjax(Request $request) {
+        
+        $data = $request->all();
+        $sortColumn = array('order_name', 'v_title', 'id', 'id', 'id');
+        $query = new LineItems;
+        $query = $query->with('properties');
+        $query = $query->join('orders', 'orders.id', 'lineitems.i_order_id');
+        if(isset($data['v_order_id']) && $data['v_order_id'] != '') {
+            $query = $query->where('v_order_id', 'LIKE',  '%'. $data['order_name']. '%');
+        }
+        if(isset($data['v_line_item']) && $data['v_line_item'] != '') {
+            $query = $query->where('title', 'LIKE', '%'. $data['v_line_item']. '%');
+        } 
+        if(isset($data['v_text']) && $data['v_text'] != '') {
+            $query = $query->whereHas('properties', function($q) use ($data) {
+                $q->where('name', 'text')->where('value', $data['v_text']);
+            });
+        }
+
+        if(isset($data['v_color']) && $data['v_color'] != '') {
+            $query = $query->whereHas('properties', function($q) use ($data) {
+                $q->where('name', 'color')->where('value', $data['v_color']);
+            });
+        }
+
+        $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name');
+        $rec_per_page = REC_PER_PAGE;
+        if(isset($data['length'])){
+            if($data['length'] == '-1') {
+                $rec_per_page = '';
+            } else {
+                $rec_per_page = $data['length'];
+            }
+        }
+
+        $sort_order = $data['order']['0']['dir'];
+        $order_field = $sortColumn[$data['order']['0']['column']];
+        if($sort_order != '' && $order_field != ''){
+            $query = $query->orderBy($order_field, $sort_order);
+		} else {
+		      $query = $query->orderBy('order_name', 'desc');
+		}
+        $orders = $query->paginate($rec_per_page);;
+        $arrOrders = $orders->toArray();
+        
+        $returnData = [];
+        foreach($arrOrders['data'] as $key => $val) {
+            $index = 0;                
+            $returnData[$key][$index++] = $val['order_name'];
+            $returnData[$key][$index++] = $val['title'];
+            
+            $image = '';
+            $text = '';
+            $color = '';
+
+            foreach ($val['properties'] as $k1 => $v1) {
+                if($v1['name'] == 'Color' || $v1['name'] == 'color') {
+                    $color = $v1['value'];
+                } else if($v1['name'] == 'Text' || $v1['name'] == 'text') {
+                    $text = $v1['value'];
+                } else if(preg_match("/image/i", $v1['name'])) {
+                    $image = '<a href="'.$v1['value'].'" target="_blank">Full URL</a>';
+                }
+            }
+
+            $returnData[$key][$index++] = $image;
+            $returnData[$key][$index++] = $text;
+            $returnData[$key][$index++] = $color;
+            $returnData[$key][$index++] = '';            
+        }
+
+        $return_data['data'] = $returnData;
+        $return_data['recordsTotal'] = $arrOrders['total'];
+        $return_data['recordsFiltered'] = $arrOrders['total'];
+        $return_data['data_array'] = $arrOrders['data'];
+
+        // return response()->json($return_data);
+        return $return_data;
+        
+    }
+
+    public function anyListAjax1(Request $request) {
         $return_data = [];
         $return_data['recordsTotal'] = 0;
         $return_data['recordsFiltered'] = 0;
@@ -111,94 +191,4 @@ class OrdersController extends Controller {
         return $return_data;
     }
     
-   
-    public function anyEdit(Request $request, $id) {
-        $current_user = auth()->guard('admin')->user();
-        if($request->all())
-        {
-            $inputs = $request->all();
-            $records = Users::find($id);
-            $validator = Validator::make($request->all(), array(
-              "v_email" =>'required|unique:users,v_email,' .$id. ',id'));
-            if ($validator->fails()) {
-                return $validator->errors();
-            } else{
-    			$records->v_email = trim($inputs['v_email']);
-                $records->v_firstname = trim($inputs['v_firstname']);
-                $records->v_lastname = trim($inputs['v_lastname']);
-                $records->e_status = trim($inputs['e_status']);
-                // checking two passwords
-     			if($inputs['password'] != "" && $inputs['cpassword'] != "" && $inputs['password'] == $inputs['cpassword']) {
-    				$records->password = Hash::make($inputs['password']);
-    			}
-                if($records->save()){
-					Session::flash('success-message', trans('messages.admin_user_edit'));
-                    return '';
-                }
-            } 
-        } else{
-            if($id != $current_user->id){
-				$records = Users::find($id);
-                if($records || !empty($records)){
-                    return View('users.edit',array('records' => $records, 'title' => 'Edit User'));
-                }
-            } else {
-                return Redirect(SITE_URL.'users');
-            }
-        }
-         return Redirect(SITE_URL.'users');
-    }
-
-    public function postChangeStatus(Request $request) {
-        $data = $request->all();
-        if(!empty($data)){
-            $user = Users::find($data['id']);
-            $user->e_status = $data['data'];
-            $user->e_user_type = $data['e_user_type'];
-
-            if($user->save()){
-                return 'TRUE';
-
-            } else {
-                return 'FALSE';
-            }
-        }
-        return "TRUE";
-    }
-    
-    public function getDelete($id) {
-        $user = Users::find($id);
-        if(!empty($user)) {
-            if($user->delete()){
-                return 'TRUE';
-            } else {
-                return 'FALSE';
-            }
-        } else {
-            return 'FALSE';
-        }
-    }
-
-    public function postBulkAction(Request $request) {
-        $data = $request->all();
-        if(count($data) > 0) {
-            if($data['action'] == 'Active') {
-                if(Users::whereIn('id', $data['ids'])->update(array('e_status' => '1'))){
-                    return 'TRUE';
-
-                } else { return 'FALSE'; }     
-
-            } else if ($data['action'] == 'Inactive') {
-                if(Users::whereIn('id', $data['ids'])->update(array('e_status' => '0'))){
-                    return 'TRUE';
-
-                } else { return 'FALSE'; }                
-
-            } else if ($data['action'] == 'Delete') {
-                $user_data = Users::whereIn('id', array_values($data['ids']))->delete();                
-                
-                return 'TRUE';
-            }
-        }
-    }
 }

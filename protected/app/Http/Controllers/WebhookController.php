@@ -57,8 +57,8 @@ class WebhookController extends Controller {
             $api = new BasicShopifyAPI();
             $api->setShop(env('SHOPIFY_DOMAIN'));
             $api->setAccessToken($shop->shopify_token);
-            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=250');
-
+            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=50');
+           
             if($orders->body->orders) {
                 foreach($orders->body->orders as $order) {   
                     $new = Orders::where('order_id', $order->id)->first();

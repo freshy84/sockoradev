@@ -46,7 +46,7 @@
         <link href="{{ ASSET_URL }}css/components.css{{CSS_VERSION}}" id="style_components" rel="stylesheet" type="text/css"/>
         <link href="{{ ASSET_URL }}css/plugins.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
         <link href="{{ ASSET_URL }}css/layout.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
-        <link href="{{ ASSET_URL }}css/themes/darkblue.css{{CSS_VERSION}}" rel="stylesheet" type="text/css" id="style_color"/>
+        <link href="{{ ASSET_URL }}css/themes/light2.css{{CSS_VERSION}}" rel="stylesheet" type="text/css" id="style_color"/>
         <link href="{{ASSET_URL}}css/profile.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
         <link href="{{ ASSET_URL }}css/custom.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
         <link href="{{ ASSET_URL }}css/image-crop.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>

@@ -3,7 +3,7 @@
 <!-- BEGIN LOGO -->
 <div class="logo">
     <a href="{{ SITE_URL }}">
-        <img src="{{ SITE_URL }}img/logo.png" alt="" width="100" height="auto" />
+        <img src="{{ SITE_URL }}assets/img/logo.png" alt="" width="200" height="auto" />
     </a>
 </div>
 <!-- END LOGO -->

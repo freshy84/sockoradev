@@ -19,21 +19,44 @@
         <div class="row">
             <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="dashboard-stat blue-madison">
-                    <div class="visual">
-                        <i class="fa fa-users"></i>
-                    </div>
-                    <div class="details">
-                        <div class="number">
-                            {{ $responseData['User']}}
+                    <a href="{{ SITE_URL.'users' }}" style="text-decoration: none;">
+                        <div class="visual">
+                            <i class="fa fa-users"></i>
                         </div>
-                        <div class="desc">
-                            Users
+                        <div class="details">
+                            <div class="number">
+                                {{ $responseData['User']}}
+                            </div>
+                            <div class="desc">
+                                Users
+                            </div>
                         </div>
-                    </div>
 
-                    <a class="more" href="{{action('UsersController@getIndex')}}">
-                        View more
-                        <i class="m-icon-swapright m-icon-white"> </i>
+                        <div class="more" >
+                            View more
+                            <i class="m-icon-swapright m-icon-white"> </i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                <div class="dashboard-stat green-meadow">
+                    <a href="{{ SITE_URL.'orders' }}" style="text-decoration: none;">
+                        <div class="visual">
+                            <i class="fa fa-envelope"></i>
+                        </div>
+                        <div class="details">
+                            <div class="number">
+                            {{ $responseData['orders']}}
+                            </div>
+                            <div class="desc">
+                                Orders
+                            </div>
+                        </div>
+                        <div class="more">
+                            View more
+                            <i class="m-icon-swapright m-icon-white"> </i>
+                        </div>
                     </a>
                 </div>
             </div>

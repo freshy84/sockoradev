@@ -24,45 +24,58 @@
 						<table class="table table-striped table-hover table-bordered orders-listing" id="datatable_ajax">
 							<thead>                
 								<tr role="row" class="heading">									
-									<th class="no-sort sorting_disabled">
+									<th width="60px;">
 										Order #
 									</th>
-									<th class="no-sort">
+									<th width="20%">
 										Line Item
-									</th>
+									</th width="20%">
 									<th class="no-sort">
 										Images
-									</th>
+									</th width="15%">
 									<th class="no-sort">
 										Text
-									</th>
+									</th width="15%">
 									<th class="no-sort">
 										Color
+									</th width="10%">
+									<th class="no-sort">
+										Number of Faces
 									</th>
-									<th style="padding-right: 0px; background-image: none ! important align:right;" class="actions no-sort">
+									<th width="10%">
+										Number of Line Items
+									</th>
+									<th style="padding-right: 0px; background-image: none ! important align:right;" class="actions no-sort" width="10%">
 										Actions
 									</th>
 								</tr>
 								<tr role="row" class="filter">									
 									<td rowspan="1" colspan="1">
-										<input type="text" name="v_order_id" class="form-control form-filter input-sm" placeholder="Search by Order Id"/>
+										<input type="text" name="v_order_id" class="form-control form-filter input-sm" placeholder="Order Id"/>
 									</td>
 									<td rowspan="1" colspan="1">
-										<input type="text" name="v_line_item" class="form-control form-filter input-sm" placeholder="Search by line item name"/>
+										<input type="text" name="v_line_item" class="form-control form-filter input-sm" placeholder="Line Item"/>
 									</td>
 									<td rowspan="1" colspan="1">
 										
 									</td>
 									<td rowspan="1" colspan="1">
-										<input type="text" name="v_text" class="form-control form-filter input-sm" placeholder="Search by text"/>
+										<input type="text" name="v_text" class="form-control form-filter input-sm" placeholder="Text"/>
 									</td>
 									<td rowspan="1" colspan="1">
-										<input type="text" name="v_color" class="form-control form-filter input-sm" placeholder="Search by color"/>
+										<input type="text" name="v_color" class="form-control form-filter input-sm" placeholder="Color"/>
+									</td>
+									<td rowspan="1" colspan="1">
+										<input type="text" name="i_no_of_faces" class="form-control form-filter input-sm" placeholder="Number Of Faces"/>
+									</td>
+									<td rowspan="1" colspan="1">
+										<input type="text" name="i_quantity_min" class="form-control form-filter input-sm" placeholder="Min"/>
+										<input type="text" name="i_quantity_max" class="form-control form-filter input-sm" placeholder="MAx"  style="margin-top: 5px;"/>
 									</td>
 									<td rowspan="1" class="actions" colspan="1">
 										<div class="margin-bottom-5">
-											<button class="btn btn-sm blue-madison filter-submit margin-bottom btn-circle"><i class="fa fa-search"></i> Search</button>
-											<button class="btn btn-sm default filter-cancel btn-circle"><i class="fa fa-times"></i> Reset</button>
+											<button class="btn btn-sm blue-madison filter-submit margin-bottom"><i class="fa fa-search"></i> Search</button>
+											<button class="btn btn-sm default filter-cancel"><i class="fa fa-times"></i> Reset</button>
 										</div>
 									</td>
 								</tr>                                

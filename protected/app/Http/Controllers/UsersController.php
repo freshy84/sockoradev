@@ -72,8 +72,8 @@ class UsersController extends Controller {
             $data[$key][$index++] = ($val['e_status'] ? 'Active' : 'Inactive');
             
             if($val['id'] != $auth_user->id){
-                $action = '<div class="actions"><a class="edit btn default btn-xs black" rel="'.$val['id'].'" href="'.SITE_URL.'users/edit/'.$val['id'].'" title="Edit"><i class="fa fa-edit"></i></a>';
-                $action .= '<a href="javascript:;" id="delete_record" rel="'.$val['id'].'" delete-url="'.SITE_URL.'users/delete/'.$val['id'].'" class="btn default btn-xs black delete" title="Delete"><i class="icon-trash"></i> </a>';
+                $action = '<div class="actions"><a class="edit btn default btn-xs black" rel="'.$val['id'].'" href="'.SITE_URL.'users/edit/'.$val['id'].'" title="Edit"><i class="fa fa-edit"></i> Edit</a>';
+                $action .= '<a href="javascript:;" id="delete_record" rel="'.$val['id'].'" delete-url="'.SITE_URL.'users/delete/'.$val['id'].'" class="btn default btn-xs black delete" title="Delete"><i class="icon-trash"></i> Delete</a>';
             }
             
             $data[$key][$index++] = $action;

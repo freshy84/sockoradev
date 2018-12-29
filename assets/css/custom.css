@@ -430,7 +430,7 @@ img-crop canvas {
 }
 
 .logo_dis{
-    width: 50% !important;
+    padding-top: 4px;
 }
 .label_text{
     margin-top:9px;
@@ -619,10 +619,28 @@ span.span_pro{
 .duplicate-error{display: none; color:#a94442; position: relative;top: 5px;}
 
 .portlet.box.blue-madison > .portlet-title {
-    background-color: #364150;
+    background-color: #243374;
 }
 .login {
-    background-color: #364150 !important;
+    background-color: #eeeeef !important;
 }
-
+.blue-madison.btn {background-color: #243374;}
+.blue-madison.btn:hover, .blue-madison.btn:focus, .blue-madison.btn:active, .blue-madison.btn.active {
+    color: white;
+    background-color: #243374bf;
+}
 .orders-listing th.no-sort{background: none !important;}
+.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a, .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a, .page-sidebar .page-sidebar-menu > li.active > a, .page-sidebar .page-sidebar-menu > li.active.open > a {
+    background: #243374;
+    border-top-color: transparent;
+    color: white;
+}
+.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a:hover, .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a:hover, .page-sidebar .page-sidebar-menu > li.active > a:hover, .page-sidebar .page-sidebar-menu > li.active.open > a:hover {
+    background: #243374;
+}
+.portlet.box.blue-madison {
+    border: 1px solid #243374;   
+}
+.btn.default {   
+    background-color:#d2cfcf;    
+}

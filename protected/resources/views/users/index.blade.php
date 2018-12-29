@@ -12,7 +12,7 @@
 						<div class="page-title caption"><strong><i class="icon-users"></i> {{ $title }}</strong></div>
 						@if(auth()->guard('admin')->user()->e_user_type == 'Admin')
 							<div class="actions">
-								<a class="btn blue-madison btn-circle" href="{{ SITE_URL }}users/add">
+								<a class="btn blue-madison" href="{{ SITE_URL }}users/add">
 									<i class="fa fa-plus"></i>
 									<span class="hidden-480">Add User</span>
 								</a>
@@ -38,7 +38,7 @@
 								<option value="{{INACTIVE_STATUS}}">{{INACTIVE_STATUS}}</option>
 								<option value="Delete">Delete</option>
 							</select>
-							<button class="btn btn-sm blue-madison table-group-action-submit btn-circle" id="bulk_action"><i class="fa fa-check"></i> Submit</button>
+							<button class="btn btn-sm blue-madison table-group-action-submit" id="bulk_action"><i class="fa fa-check"></i> Submit</button>
 							<input type="hidden"  class="table-group-action-url" value="{{ SITE_URL }}users/bulk-action"/>
 						</div>
 						<table class="table table-striped table-hover table-bordered" id="datatable_ajax">
@@ -94,8 +94,8 @@
 									</td>
 									<td rowspan="1" class="actions" colspan="1">
 										<div class="margin-bottom-5">
-											<button class="btn btn-sm blue-madison filter-submit margin-bottom btn-circle"><i class="fa fa-search"></i> Search</button>
-											<button class="btn btn-sm default filter-cancel btn-circle"><i class="fa fa-times"></i> Reset</button>
+											<button class="btn btn-sm blue-madison filter-submit margin-bottom"><i class="fa fa-search"></i> Search</button>
+											<button class="btn btn-sm default filter-cancel"><i class="fa fa-times"></i> Reset</button>
 										</div>
 									</td>
 								</tr>                                

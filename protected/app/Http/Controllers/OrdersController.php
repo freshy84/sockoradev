@@ -15,7 +15,7 @@ class OrdersController extends Controller {
     public function anyListAjax(Request $request) {
         
         $data = $request->all();
-        $sortColumn = array('order_name', 'v_title', 'id', 'id', 'id');
+        $sortColumn = array('order_name', 'lineitems.title', 'id', 'id', 'id', 'id', 'quantity');
         $query = new LineItems;
         $query = $query->with('properties');
         $query = $query->join('orders', 'orders.id', 'lineitems.i_order_id');
@@ -30,12 +30,22 @@ class OrdersController extends Controller {
                 $q->where('name', 'text')->where('value', $data['v_text']);
             });
         }
-
         if(isset($data['v_color']) && $data['v_color'] != '') {
             $query = $query->whereHas('properties', function($q) use ($data) {
                 $q->where('name', 'color')->where('value', $data['v_color']);
             });
         }
+        if(isset($data['i_no_of_faces']) && $data['i_no_of_faces'] != '') {
+            $query = $query->whereHas('properties', function($q) use ($data) {
+                $q->where('name', 'Number of Faces')->where('value', $data['i_no_of_faces']);
+            });
+        }
+        if(isset($data['i_quantity_min']) && $data['i_quantity_min'] != '') {
+            $query = $query->where('quantity', '>=', $data['i_quantity_min']);
+        } 
+        if(isset($data['i_quantity_max']) && $data['i_quantity_max'] != '') {
+            $query = $query->where('quantity', '<=', $data['i_quantity_max']);
+        } 
 
         $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name');
         $rec_per_page = REC_PER_PAGE;
@@ -66,6 +76,7 @@ class OrdersController extends Controller {
             $image = '';
             $text = '';
             $color = '';
+            $noOfFaces = 0;
 
             foreach ($val['properties'] as $k1 => $v1) {
                 if($v1['name'] == 'Color' || $v1['name'] == 'color') {
@@ -73,14 +84,19 @@ class OrdersController extends Controller {
                 } else if($v1['name'] == 'Text' || $v1['name'] == 'text') {
                     $text = $v1['value'];
                 } else if(preg_match("/image/i", $v1['name'])) {
-                    $image = '<a href="'.$v1['value'].'" target="_blank">Full URL</a>';
+                    $image .= ', <a href="'.$v1['value'].'" target="_blank">Full URL</a>';
+                } else if(preg_match("/Number of Faces/i", $v1['name'])) {
+                    $noOfFaces = $v1['value'];
                 }
+                
             }
 
-            $returnData[$key][$index++] = $image;
+            $returnData[$key][$index++] = ltrim($image, ', ');
             $returnData[$key][$index++] = $text;
             $returnData[$key][$index++] = $color;
-            $returnData[$key][$index++] = '';            
+            $returnData[$key][$index++] = $noOfFaces;
+            $returnData[$key][$index++] = $val['quantity'];
+            $returnData[$key][$index++] = '';
         }
 
         $return_data['data'] = $returnData;
@@ -93,102 +109,4 @@ class OrdersController extends Controller {
         
     }
 
-    public function anyListAjax1(Request $request) {
-        $return_data = [];
-        $return_data['recordsTotal'] = 0;
-        $return_data['recordsFiltered'] = 0;
-        $return_data['data'] = [];
-
-        $data = $request->all();        
-        $shop = Shops::where('shopify_domain', env('SHOPIFY_DOMAIN'))->first();
-        if($shop) {
-            $api = new BasicShopifyAPI();
-            $api->setShop(env('SHOPIFY_DOMAIN'));
-            $api->setAccessToken($shop->shopify_token);
-
-            $rec_per_page = REC_PER_PAGE;
-            if(isset($data['length'])){
-                if($data['length'] == '-1') {
-                    $rec_per_page = '';
-                } else {
-                    $rec_per_page = $data['length'];
-                }
-            }
-            
-            // $page = isset($data['page']) && $data['page'] > 0 ? $data['page'] : 1;
-            
-            // $totalOrders = $api->rest('GET', '/admin/orders/count.json');
-            // $request = $api->rest('GET', '/admin/orders.json?limit='. $rec_per_page .'&page='.$page.'&fields=id,email,name,order_number,line_items');
-            
-            $orderApiUrl = '/admin/orders.json?status=any&fields=id,email,name,order_number,line_items';
-            $request = $api->rest('GET',  $orderApiUrl);
-        
-
-            if(isset($request->body->orders) && count($request->body->orders) > 0) {
-                $returnData = array();
-                $arrayIndex = 0;
-                foreach($request->body->orders as $key => $val) {
-                    if((isset($data['v_order_id']) && $data['v_order_id'] !== '' && str_replace('#', '', $data['v_order_id']) == $val->order_number) || !isset($data['v_order_id'])) {
-                        foreach ($val->line_items as $i => $v) {
-                            $image = '';
-                            $text = '';
-                            $color = '';
-                            
-                            if(isset($data['v_line_item']) && !preg_match("/".$data['v_line_item']."/i", $v->title)) {
-                                continue;
-                            }
-                            foreach ($v->properties as $k1 => $v1) {
-                                if($v1->name == 'Color' || $v1->name == 'color') {
-                                    $color = $v1->value;
-                                } else if($v1->name == 'Text' || $v1->name == 'text') {
-                                    $text = $v1->value;
-                                } else if(preg_match("/image/i", $v1->name)) {
-                                    $image = '<a href="'.$v1->value.'" target="_blank">Full URL</a>';
-                                }
-                            }
-                        
-                            if(isset($data['v_text']) && !preg_match("/".$data['v_text']."/i", $text)) {
-                                continue;
-                            }
-
-                            if(isset($data['v_color']) && !preg_match("/".$data['v_color']."/i", $color)) {
-                                continue;
-                            }
-
-                            $index = 0;                
-                            $returnData[$arrayIndex][$index++] = $val->name;
-                            $returnData[$arrayIndex][$index++] = $v->title;
-
-                            $returnData[$arrayIndex][$index++] = $image;
-                            $returnData[$arrayIndex][$index++] = $text;
-                            $returnData[$arrayIndex][$index++] = $color;
-                            $returnData[$arrayIndex][$index++] = '';
-                                        
-                            // $action = '<div class="actions"><a class="edit btn default btn-xs black" rel="'.$val->id.'" href="'.SITE_URL.'users/edit/'.$val->id.'" title="Edit"><i class="fa fa-edit"></i></a>';
-                            // $action .= '<a href="javascript:;" id="delete_record" rel="'.$val['id'].'" delete-url="'.SITE_URL.'users/delete/'.$val['id'].'" class="btn default btn-xs black delete" title="Delete"><i class="icon-trash"></i> </a>';
-
-                            // $returnData[$arrayIndex][$index++] = $action;
-
-                            $arrayIndex++;
-
-                        }
-                    }                
-                }
-            }
-            
-            $totalRecord = count($returnData); 
-            $return_data['recordsTotal'] = $totalRecord;
-            $return_data['recordsFiltered'] = $totalRecord;
-
-            
-            // $return_data['recordsTotal'] = $totalOrders->body->count;
-            // $return_data['recordsFiltered'] = $totalOrders->body->count;
-            
-            $start = $rec_per_page * ($data['page'] - 1);
-            $return_data['data'] = array_slice($returnData, $start, $rec_per_page);
-        }
-        
-        return $return_data;
-    }
-    
 }

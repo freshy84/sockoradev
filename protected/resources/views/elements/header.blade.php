@@ -4,7 +4,7 @@
     <div class="page-header-inner">
         <!-- BEGIN LOGO -->
         <div class="page-logo logo_dis">
-            <span class="log_title">{{ SITE_NAME }}</span>
+            <img src="{{ SITE_URL }}assets/img/logo.png" alt="" width="170" height="auto" />
         </div>
         <!-- END LOGO -->
         <!-- BEGIN RESPONSIVE MENU TOGGLER -->

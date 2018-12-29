@@ -79,8 +79,8 @@
 <script>
     $(document).ready(function(){
 		var url = SITE_URL + 'orders/list-ajax';
-		
-        TableAjax.init(url);
+		var order = [[0, "desc"]];
+        TableAjax.init(url, order);
 	});
 </script>
 @stop

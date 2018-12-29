@@ -50,7 +50,74 @@ class WebhookController extends Controller {
             
         }
     }
-    
+
+    public function saveOrders() {
+        $shop = Shops::where('shopify_domain', env('SHOPIFY_DOMAIN'))->first();
+        if($shop) {
+            $api = new BasicShopifyAPI();
+            $api->setShop(env('SHOPIFY_DOMAIN'));
+            $api->setAccessToken($shop->shopify_token);
+            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=250');
+
+            if($orders->body->orders) {
+                foreach($orders->body->orders as $order) {   
+                    $new = Orders::where('order_id', $order->id)->first();
+                    if(!$new) {
+                        $new = new Orders;            
+                    }                                   
+                   
+                    $new->order_id = $order->id;
+                    $new->email = $order->email;
+                    $new->name = $order->name;
+                    $new->order_number = $order->order_number;
+                    $new->number = $order->number;
+                    $new->note = $order->note;
+                    $new->token = $order->token;
+                    $new->total_price = $order->total_price;
+                    $new->subtotal_price = $order->subtotal_price;
+                    $new->total_tax = $order->total_tax;
+                    $new->total_discounts = $order->total_discounts;
+                    $new->total_line_items_price = $order->total_line_items_price;
+                    $new->cancel_reason = $order->cancel_reason;                                       
+                    $new->cancelled_at = strtotime($order->cancelled_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->cancelled_at)) : null;
+                    $new->closed_at = strtotime($order->closed_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->closed_at)) : null;
+                    $new->created_at = strtotime($order->created_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->created_at)) : null;
+                    $new->updated_at = strtotime($order->updated_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->updated_at)) : null;
+                    
+                    if($new->save()) {
+                        foreach($order->line_items as $line_item) {
+                            $new1 = LineItems::where('line_item_id', $line_item->id)->first();
+                            if(!$new1) {
+                                $new1 = new LineItems;            
+                            }                            
+                            $new1->line_item_id = $line_item->id;
+                            $new1->i_order_id = $new->id;
+                            $new1->title = $line_item->title;
+                            $new1->name = $line_item->name;
+                            $new1->quantity = $line_item->quantity;
+                            $new1->price = $line_item->price;
+                            $new1->total_discount = $line_item->total_discount;
+                            
+                            if($new1->save()){
+                                LineItemProperty::where('i_lineitem_id', $new1->id)->delete();
+                                foreach ($line_item->properties as $property) {
+                                    $new2 = new LineItemProperty;
+                                    $new2->i_lineitem_id = $new1->id;
+                                    $new2->name = $property->name;
+                                    $new2->value = $property->value;
+                                    $new2->save();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            echo 'success.';
+            
+        }
+    }
+
     public function orderWebhook(Request $request) {
         $data = $request->all();
 
@@ -61,7 +128,7 @@ class WebhookController extends Controller {
         exit; */
 
         if($data) {
-            $order = Orders::where('order_id', $data->id)->first();
+            $order = Orders::where('order_id', $data['id'])->first();
             if(!$order) {
                 $order = new Orders;            
             }
@@ -116,63 +183,34 @@ class WebhookController extends Controller {
         return 'Success';
     }
 
-    public function saveOrders() {
-        $shop = Shops::where('shopify_domain', env('SHOPIFY_DOMAIN'))->first();
-        if($shop) {
-            $api = new BasicShopifyAPI();
-            $api->setShop(env('SHOPIFY_DOMAIN'));
-            $api->setAccessToken($shop->shopify_token);
-            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=250');
-
-            if($orders->body->orders) {
-                foreach($orders->body->orders as $order) {                                      
-                    $new = new Orders;
-                    $new->order_id = $order->id;
-                    $new->email = $order->email;
-                    $new->name = $order->name;
-                    $new->order_number = $order->order_number;
-                    $new->number = $order->number;
-                    $new->note = $order->note;
-                    $new->token = $order->token;
-                    $new->total_price = $order->total_price;
-                    $new->subtotal_price = $order->subtotal_price;
-                    $new->total_tax = $order->total_tax;
-                    $new->total_discounts = $order->total_discounts;
-                    $new->total_line_items_price = $order->total_line_items_price;
-                    $new->cancel_reason = $order->cancel_reason;                                       
-                    $new->cancelled_at = strtotime($order->cancelled_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->cancelled_at)) : null;
-                    $new->closed_at = strtotime($order->closed_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->closed_at)) : null;
-                    $new->created_at = strtotime($order->created_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->created_at)) : null;
-                    $new->updated_at = strtotime($order->updated_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->updated_at)) : null;
-                    
-                    if($new->save()) {
-                        foreach($order->line_items as $line_item) {
-                            $new1 = new LineItems;
-                            $new1->line_item_id = $line_item->id;
-                            $new1->i_order_id = $new->id;
-                            $new1->title = $line_item->title;
-                            $new1->name = $line_item->name;
-                            $new1->quantity = $line_item->quantity;
-                            $new1->price = $line_item->price;
-                            $new1->total_discount = $line_item->total_discount;
-                            
-                            if($new1->save()){
-                                foreach ($line_item->properties as $property) {
-                                    $new2 = new LineItemProperty;
-                                    $new2->i_lineitem_id = $new1->id;
-                                    $new2->name = $property->name;
-                                    $new2->value = $property->value;
-                                    $new2->save();
-                                }
-                            }
-                        }
-                    }
-                }
+    public function productWebhook(Request $request) {
+        $data = $request->all();
+        if($data) {
+            $product = Products::where('product_id', $data['id'])->first();
+            if(!$product) {
+                $product = new Products;            
             }
-
-            echo 'success.';
             
+            $images = [];
+            foreach ($data['images'] as $image) {
+                $images[] = ['id' => $image['id'], 'src' => $image['src']];
+            }            
+            
+            $product->product_id = $data['id'];
+            $product->title = $data['title'];
+            $product->body_html = $data['body_html'];
+            $product->vendor = $data['vendor'];
+            $product->tags = $data['tags'];
+            $product->images = json_encode($images);
+            $product->image = isset($data['image']['src']) ? $data['image']['src'] : null;        
+            $product->published_at = strtotime($data['published_at']) > 0 ? date('Y-m-d H:i:s', strtotime($data['published_at'])) : null;
+            $product->created_at = strtotime($data['created_at']) > 0 ? date('Y-m-d H:i:s', strtotime($data['created_at'])) : null;
+            $product->updated_at = strtotime($data['updated_at']) > 0 ? date('Y-m-d H:i:s', strtotime($data['updated_at'])) : null;       
+            
+            $product->save();            
         }
+
+        return 'Success';
     }
 
 }

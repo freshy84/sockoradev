@@ -20,9 +20,8 @@ class OrdersController extends Controller {
         $query = $query->with('properties');
         $query = $query->join('orders', 'orders.id', 'lineitems.i_order_id');
         
-        $query = $query->where('orders.order_number', 'LIKE',  '%#1156%');
         if(isset($data['v_order_id']) && $data['v_order_id'] != '') {
-            $query = $query->where('orders.order_number', 'LIKE',  '%'. $data['order_name']. '%');
+            $query = $query->where('orders.order_number', 'LIKE',  '%'. $data['v_order_id']. '%');
         }
         if(isset($data['v_line_item']) && $data['v_line_item'] != '') {
             $query = $query->where('title', 'LIKE', '%'. $data['v_line_item']. '%');

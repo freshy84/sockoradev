@@ -27,16 +27,16 @@
 									<th width="60px;">
 										Order #
 									</th>
-									<th width="20%">
+									<th width="15%">
 										Line Item
 									</th width="20%">
 									<th class="no-sort" width="30%">
 										Images
 									</th width="10%">
-									<th class="no-sort">
+									<th class="no-sort" width="10%">
 										Text
 									</th width="10%">
-									<th class="no-sort">
+									<th class="no-sort" width="10%">
 										Color
 									</th width="10%">
 									<th class="no-sort">

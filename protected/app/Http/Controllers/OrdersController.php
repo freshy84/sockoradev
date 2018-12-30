@@ -28,17 +28,17 @@ class OrdersController extends Controller {
         } 
         if(isset($data['v_text']) && $data['v_text'] != '') {
             $query = $query->whereHas('properties', function($q) use ($data) {
-                $q->where('name', 'text')->where('value', $data['v_text']);
+                $q->where('name', '=', 'text')->where('value', 'LIKE', '%'. $data['v_text']. '%');
             });
         }
         if(isset($data['v_color']) && $data['v_color'] != '') {
             $query = $query->whereHas('properties', function($q) use ($data) {
-                $q->where('name', 'color')->where('value', $data['v_color']);
+                $q->where('name', '=', 'color')->where('value', 'LIKE', '%'. $data['v_color']. '%');
             });
         }
         if(isset($data['i_no_of_faces']) && $data['i_no_of_faces'] != '') {
             $query = $query->whereHas('properties', function($q) use ($data) {
-                $q->where('name', 'Number of Faces')->where('value', $data['i_no_of_faces']);
+                $q->where('name', '=', 'Number of Faces')->where('value', '=', $data['i_no_of_faces']);
             });
         }
         if(isset($data['i_quantity_min']) && $data['i_quantity_min'] != '') {

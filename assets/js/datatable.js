@@ -132,7 +132,7 @@ var Datatable = function() {
                 $(this).val("")
             }), $('input.form-filter[type="checkbox"]', a).each(function() {
                 $(this).attr("checked", !1)
-            }), $(".reset_select").select2("val", ""), o.clearAjaxParams(), o.addAjaxParam("action", t.filterCancelAction), e.ajax.reload()
+            }), o.clearAjaxParams(), o.addAjaxParam("action", t.filterCancelAction), e.ajax.reload()
         },
         getSelectedRowsCount: function() {
             return $('tbody > tr > td:nth-child(1) input[type="checkbox"]:checked', a).size()

@@ -27,16 +27,16 @@
 									<th width="60px;">
 										Order #
 									</th>
-									<th width="15%">
+									<th width="20%">
 										Line Item
 									</th width="20%">
-									<th class="no-sort" width="30%">
+									<th class="no-sort" width="35%">
 										Images
 									</th width="10%">
-									<th class="no-sort" width="10%">
+									<th class="no-sort">
 										Text
 									</th width="10%">
-									<th class="no-sort" width="10%">
+									<th class="no-sort">
 										Color
 									</th width="10%">
 									<th class="no-sort">
@@ -70,7 +70,7 @@
 									</td>
 									<td rowspan="1" colspan="1">
 										<input type="text" name="i_quantity_min" class="form-control form-filter input-sm" placeholder="Min"/>
-										<input type="text" name="i_quantity_max" class="form-control form-filter input-sm" placeholder="MAx"  style="margin-top: 5px;"/>
+										<input type="text" name="i_quantity_max" class="form-control form-filter input-sm" placeholder="Max"  style="margin-top: 5px;"/>
 									</td>
 									<td rowspan="1" class="actions" colspan="1">
 										<div class="margin-bottom-5">

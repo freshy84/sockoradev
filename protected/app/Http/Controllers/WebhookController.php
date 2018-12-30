@@ -118,7 +118,7 @@ class WebhookController extends Controller {
                                             mkdir($line_item_path.'/thumb', 0777, true);
                                         }
                                         
-                                        $imageName = $this->makeThumbnail($property->value,  $line_item_path.'/', $line_item_path.'/thumb/', 50, 50);
+                                        $imageName = $this->makeThumbnail($property->value,  $line_item_path.'/', $line_item_path.'/thumb/', 30, 30);
                                         if($imageName != '') {
                                             $new2->v_image_thumb = $imageName;
                                         }
@@ -138,13 +138,7 @@ class WebhookController extends Controller {
     }
 
     public function orderWebhook(Request $request) {
-        $data = $request->all();
-
-       /*  file_put_contents(TEMP_IMG_PATH.'res1.txt', print_r($data, true));
-        file_put_contents(TEMP_IMG_PATH.'res2.txt', print_r(file_get_contents('php://input'), true));
-        
-        pr($data);
-        exit; */
+        $data = $request->all();      
 
         if($data) {
             $order = Orders::where('order_id', $data['id'])->first();
@@ -185,13 +179,32 @@ class WebhookController extends Controller {
                     $line_item->price = $value['price'];
                     $line_item->total_discount = $value['total_discount'];
                     
-                    if($line_item->save()){
+                    if($line_item->save()) {
+
+                        $line_item_path = LINE_ITEM_IMG.$new1->id;
+                        if (file_exists($line_item_path)) {
+                            $this->delete_directory($line_item_path);
+                        }
+
                         LineItemProperty::where('i_lineitem_id', $line_item->id)->delete();
                         foreach ($value['properties'] as $property) {
                             $new2 = new LineItemProperty;
                             $new2->i_lineitem_id = $line_item->id;
                             $new2->name = $property['name'];
                             $new2->value = $property['value'];
+                            if(preg_match("/image/i", $property['name']) && $$property['value'] != '' && $property['value'] !== null) {
+                                       
+                                if (!file_exists($line_item_path)) {                                           
+                                    mkdir($line_item_path.'/thumb', 0777, true);
+                                }
+                                
+                                $imageName = $this->makeThumbnail($property['value'],  $line_item_path.'/', $line_item_path.'/thumb/', 50, 50);
+                                if($imageName != '') {
+                                    $new2->v_image_thumb = $imageName;
+                                } else {
+                                    $new2->v_image_thumb = null;
+                                }
+                            }
                             $new2->save();
                         }
                     }

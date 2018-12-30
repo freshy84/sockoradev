@@ -27,15 +27,15 @@
 									<th width="60px;">
 										Order #
 									</th>
-									<th width="20%">
+									<th width="15%">
 										Line Item
 									</th width="20%">
-									<th class="no-sort" width="35%">
+									<th class="no-sort" width="25%">
 										Images
-									</th width="10%">
+									</th width="15%">
 									<th class="no-sort">
 										Text
-									</th width="10%">
+									</th width="15%">
 									<th class="no-sort">
 										Color
 									</th width="10%">

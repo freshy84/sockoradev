@@ -52,12 +52,13 @@ class WebhookController extends Controller {
     }
 
     public function saveOrders() {
+        
         $shop = Shops::where('shopify_domain', env('SHOPIFY_DOMAIN'))->first();
         if($shop) {
             $api = new BasicShopifyAPI();
             $api->setShop(env('SHOPIFY_DOMAIN'));
             $api->setAccessToken($shop->shopify_token);
-            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=50');
+            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=250');
            
             if($orders->body->orders) {
                 foreach($orders->body->orders as $order) {   
@@ -99,12 +100,30 @@ class WebhookController extends Controller {
                             $new1->total_discount = $line_item->total_discount;
                             
                             if($new1->save()){
+                                $line_item_path = LINE_ITEM_IMG.$new1->id;
+
+                                if (file_exists($line_item_path)) {
+                                    $this->delete_directory($line_item_path);
+                                }
+                               
                                 LineItemProperty::where('i_lineitem_id', $new1->id)->delete();
                                 foreach ($line_item->properties as $property) {
                                     $new2 = new LineItemProperty;
                                     $new2->i_lineitem_id = $new1->id;
                                     $new2->name = $property->name;
                                     $new2->value = $property->value;
+                                    if(preg_match("/image/i", $property->name) && $property->value != '' && $property->value !== null) {
+                                       
+                                        if (!file_exists($line_item_path)) {                                           
+                                            mkdir($line_item_path.'/thumb', 0777, true);
+                                        }
+                                        
+                                        $imageName = $this->makeThumbnail($property->value,  $line_item_path.'/', $line_item_path.'/thumb/', 50, 50);
+                                        if($imageName != '') {
+                                            $new2->v_image_thumb = $imageName;
+                                        }
+                                    }
+                                    
                                     $new2->save();
                                 }
                             }

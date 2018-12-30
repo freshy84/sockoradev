@@ -25,6 +25,10 @@
 #fancybox-loading { z-index: 10051 !important; }
 a {color: #243374;}
 
+.mt5{margin-top: 5px}
+.mb5{margin-bottom: 5px}
+.ml5{margin-left: 5px}
+.mr5{margin-right: 5px}
 /* End Normalization
 --------------------------------------------------------------------------------------------------*/
 

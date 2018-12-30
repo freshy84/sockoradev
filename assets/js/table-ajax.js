@@ -11,7 +11,11 @@ var project_array, TableAjax = function(t) {
                 n = $("#datatable_ajax");
             e.init({
                 src: $("#datatable_ajax"),
-                onSuccess: function(t) {},
+                onSuccess: function (t) {
+                    setInterval(() => {
+                        $('.fancybox').fancybox();
+                    }, 500);
+                },
                 onError: function(t) {},
                 loadingMessage: "Loading...",
                 dataTable: {

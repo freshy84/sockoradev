@@ -59,10 +59,13 @@ class OrdersController extends Controller {
 
         $sort_order = $data['order']['0']['dir'];
         $order_field = $sortColumn[$data['order']['0']['column']];
+        if($order_field == 'order_name') {
+            $query = $query->orderBy('order_name', $sort_order)->orderBy('title', 'asc');
+        }
         if($sort_order != '' && $order_field != ''){
             $query = $query->orderBy($order_field, $sort_order);
 		} else {
-		      $query = $query->orderBy('order_name', 'desc');
+		    $query = $query->orderBy('order_name', 'desc')->orderBy('id', 'desc');
 		}
         $orders = $query->paginate($rec_per_page);;
         $arrOrders = $orders->toArray();
@@ -84,7 +87,7 @@ class OrdersController extends Controller {
                 } else if($v1['name'] == 'Text' || $v1['name'] == 'text') {
                     $text = $v1['value'];
                 } else if(preg_match("/image/i", $v1['name'])) {
-                    $image .= ', <a href="'.$v1['value'].'" target="_blank">Full URL</a>';
+                    $image .= '<a class="mr5 fancybox" href="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/'.$v1['v_image_thumb'].'" data-fancybox-group="gallery" title="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
                 } else if(preg_match("/Number of Faces/i", $v1['name'])) {
                     $noOfFaces = $v1['value'];
                 }

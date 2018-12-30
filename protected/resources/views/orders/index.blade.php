@@ -30,12 +30,12 @@
 									<th width="20%">
 										Line Item
 									</th width="20%">
-									<th class="no-sort">
+									<th class="no-sort" width="30%">
 										Images
-									</th width="15%">
+									</th width="10%">
 									<th class="no-sort">
 										Text
-									</th width="15%">
+									</th width="10%">
 									<th class="no-sort">
 										Color
 									</th width="10%">

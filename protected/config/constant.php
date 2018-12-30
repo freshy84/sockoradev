@@ -43,6 +43,7 @@ define('USER_PROFILE_IMAGE_PATH', 'files/profile/');
 define('USER_PROFILE_THUMB_IMAGE_PATH', 'files/profile/thumb/');
 define('ADMIN_PROFILE_IMG_PATH_URL', 'files/admin_profile/');
 define('TEMP_IMG_PATH', 'files/temp/');
+define('LINE_ITEM_IMG', 'files/line_item/');
 define('INVALID_USERNAME_OR_PASSWORD', 'Email Id and Password do not match. Please try again!');
 define('EXCEL_FORMAT', 'xlsx');
 define('EMAIL_LIMIT', 1);

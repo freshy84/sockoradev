@@ -31,6 +31,22 @@ var project_array, TableAjax = function(t) {
                         targets: "no-sort",
                         orderable: !1
                     }],
+                    columns: [
+                        {
+                            "className":      'more-details row-details-close',
+                            "orderable":      false,
+                            "data":           null,
+                            "defaultContent": '<span class="row-details row-details-close"></span>'
+                        },
+                        { "data": "order_id" },
+                        { "data": "line_item_name" },
+                        { "data": "images" },
+                        { "data": "text" },
+                        { "data": "color" },
+                        { "data": "no_of_faces" },
+                        { "data": "quantity" },
+                        { "data": "action" }
+                    ],
                     displayStart: 0,
                     fnRowCallback: function(t, a, e, n) {
                         setTimeout(function() {
@@ -85,8 +101,45 @@ var project_array, TableAjax = function(t) {
                     a = $.param(a),
                     e = $(this).attr("action-url");
                 window.location.href = e + "?" + a
-            })
+            }), e.getTableWrapper().on('click', ' tbody td .row-details', function () {
+                var tr = $(this).closest('tr');
+                console.log(tr);
+                var table = e.getDataTable();
+                var row = table.row(tr);
+        
+                if ( row.child.isShown() ) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    $(this).addClass("row-details-close").removeClass("row-details-open");
+                    tr.removeClass('shown');
+                }
+                else {
+                    // Open this row
+                    $(this).addClass("row-details-open").removeClass("row-details-close");
+                    row.child( format(row.data()) ).show();
+                    tr.addClass('shown');
+                }
+            });
         };
+
+        function format ( d ) {
+            console.log(d)
+            // `d` is the original data object for the row
+            return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+                '<tr>'+
+                    '<td>Full name:</td>'+
+                    '<td>'+d.name+'</td>'+
+                '</tr>'+
+                '<tr>'+
+                    '<td>Extension number:</td>'+
+                    '<td>'+d.extn+'</td>'+
+                '</tr>'+
+                '<tr>'+
+                    '<td>Extra info:</td>'+
+                    '<td>And any further details here (images etc)...</td>'+
+                '</tr>'+
+            '</table>';
+        }
     return {
         init: function(t, n) {
             a(), void 0 == n && (n = ""), e(t, n)

@@ -23,7 +23,8 @@
                         @endif
 						<table class="table table-striped table-hover table-bordered orders-listing" id="datatable_ajax">
 							<thead>                
-								<tr role="row" class="heading">									
+								<tr role="row" class="heading">	
+									<th class="table-checkbox no-sort" rowspan="1" colspan="1" aria-label="" style="width: 14px;"></th>								
 									<th width="60px;">
 										Order #
 									</th>
@@ -49,7 +50,10 @@
 										Actions
 									</th>
 								</tr>
-								<tr role="row" class="filter">									
+								<tr role="row" class="filter">		
+									<td rowspan="1" colspan="1">
+										
+									</td>							
 									<td rowspan="1" colspan="1">
 										<input type="text" name="v_order_id" class="form-control form-filter input-sm" placeholder="Order Id"/>
 									</td>

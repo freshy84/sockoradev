@@ -74,8 +74,9 @@ class OrdersController extends Controller {
         $returnData = [];
         foreach($arrOrders['data'] as $key => $val) {
             $index = 0;                
-            $returnData[$key][$index++] = $val['order_name'];
-            $returnData[$key][$index++] = $val['title'];
+            // $returnData[$key][$index++] = '<span class="row-details row-details-close"></span>';
+            $returnData[$key]['order_id'] = $val['order_name'];
+            $returnData[$key]['line_item_name'] = $val['title'];
             
             $image = '';
             $text = '';
@@ -95,12 +96,12 @@ class OrdersController extends Controller {
                 
             }
 
-            $returnData[$key][$index++] = ltrim($image, ', ');
-            $returnData[$key][$index++] = $text;
-            $returnData[$key][$index++] = $color;
-            $returnData[$key][$index++] = $noOfFaces;
-            $returnData[$key][$index++] = $val['quantity'];
-            $returnData[$key][$index++] = '';
+            $returnData[$key]['images'] = ltrim($image, ', ');
+            $returnData[$key]['text'] = $text;
+            $returnData[$key]['color'] = $color;
+            $returnData[$key]['no_of_faces'] = $noOfFaces;
+            $returnData[$key]['quantity'] = $val['quantity'];
+            $returnData[$key]['action'] = '';
         }
 
         $return_data['data'] = $returnData;

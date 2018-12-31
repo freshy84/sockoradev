@@ -48,7 +48,7 @@ class OrdersController extends Controller {
             $query = $query->where('quantity', '<=', $data['i_quantity_max']);
         } 
 
-        $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name');
+        $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name', 'orders.e_status as order_status');
         $rec_per_page = REC_PER_PAGE;
         if(isset($data['length'])){
             if($data['length'] == '-1') {
@@ -95,12 +95,17 @@ class OrdersController extends Controller {
                 }
                 
             }
-
+            $status = ['New Order', 'Design Complete', 'Mock-up Sent', 'Redo', 'Approved'];
+            $statusOption = '';
+            foreach($status as $stat) {
+                $statusOption .= '<option value="'.$stat.'" '. ($val['order_status'] == $stat ? 'selected=""' : '').'>'.$stat.'</option>';
+            }
             $returnData[$key]['images'] = ltrim($image, ', ');
             $returnData[$key]['text'] = $text;
             $returnData[$key]['color'] = $color;
             $returnData[$key]['no_of_faces'] = $noOfFaces;
             $returnData[$key]['quantity'] = $val['quantity'];
+            $returnData[$key]['order_status'] = '<select class="line-item-status order-id-'.$val['i_order_id'].'" rel="'.$val['i_order_id'].'">'. $statusOption .'</select>';
             $returnData[$key]['action'] = '';
         }
 
@@ -112,6 +117,22 @@ class OrdersController extends Controller {
         // return response()->json($return_data);
         return $return_data;
         
+    }
+
+    public function changeOrderStatus(Request $request) {
+        $data = $request->all();
+       
+        if(isset($data['status']) && isset($data['order_id'])) {
+            $order = Orders::find($data['order_id']);
+            if($order) {
+                $order->e_status = $data['status'];
+                $order->save();
+
+                return 'TRUE';
+            }
+        }
+        return 'FALSE';
+
     }
 
 }

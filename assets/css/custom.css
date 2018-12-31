@@ -609,3 +609,8 @@ span.span_pro{
 }
 
 .line-item-img{border: 2px solid #ddd; border-radius: 6px !important;}
+
+table.detail-row-table tbody tr:first-child td{border-top: none;}
+table.detail-row-table tbody td{border-top: 1px solid #ddd; padding: 8px;}
+.table tr.heading > th { vertical-align: middle;}
+.line-item-status{height: 28px;}

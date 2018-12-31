@@ -31,13 +31,10 @@
 									<th width="15%">
 										Line Item
 									</th width="20%">
-									<th class="no-sort" width="25%">
+									<th class="no-sort" width="20%">
 										Images
-									</th width="15%">
-									<th class="no-sort">
-										Text
-									</th width="15%">
-									<th class="no-sort">
+									</th>									
+									<th class="no-sort" width="15%">
 										Color
 									</th width="10%">
 									<th class="no-sort">
@@ -45,6 +42,9 @@
 									</th>
 									<th width="10%">
 										Number of Line Items
+									</th>
+									<th width="10%">
+										Status
 									</th>
 									<th style="padding-right: 0px; background-image: none ! important align:right;" class="actions no-sort" width="10%">
 										Actions
@@ -62,10 +62,7 @@
 									</td>
 									<td rowspan="1" colspan="1">
 										
-									</td>
-									<td rowspan="1" colspan="1">
-										<input type="text" name="v_text" class="form-control form-filter input-sm" placeholder="Text"/>
-									</td>
+									</td>									
 									<td rowspan="1" colspan="1">
 										<input type="text" name="v_color" class="form-control form-filter input-sm" placeholder="Color"/>
 									</td>
@@ -75,6 +72,9 @@
 									<td rowspan="1" colspan="1">
 										<input type="text" name="i_quantity_min" class="form-control form-filter input-sm" placeholder="Min"/>
 										<input type="text" name="i_quantity_max" class="form-control form-filter input-sm" placeholder="Max"  style="margin-top: 5px;"/>
+									</td>
+									<td rowspan="1" colspan="1">
+										<input type="text" name="e_status" class="form-control form-filter input-sm" placeholder="Number Of Faces"/>
 									</td>
 									<td rowspan="1" class="actions" colspan="1">
 										<div class="margin-bottom-5">

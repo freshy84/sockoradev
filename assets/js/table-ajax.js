@@ -9,6 +9,30 @@ var project_array, TableAjax = function(t) {
             "" == a && (a = [0, "asc"]);
             var e = new Datatable,
                 n = $("#datatable_ajax");
+            var columns = {};
+            
+            if (t == SITE_URL + 'orders/list-ajax') {                
+                columns = {
+                    columns:
+                        [
+                            {
+                                "className": 'more-details row-details-close',
+                                "orderable": false,
+                                "data": null,
+                                "defaultContent": '<span class="row-details row-details-close"></span>'
+                            },
+                            { "data": "order_id" },
+                            { "data": "line_item_name" },
+                            { "data": "images" },                            
+                            { "data": "color" },
+                            { "data": "no_of_faces" },
+                            { "data": "quantity" },
+                            { "data": "order_status" },
+                            { "data": "action" }
+                        ]
+                }
+            }
+            
             e.init({
                 src: $("#datatable_ajax"),
                 onSuccess: function (t) {
@@ -31,22 +55,7 @@ var project_array, TableAjax = function(t) {
                         targets: "no-sort",
                         orderable: !1
                     }],
-                    columns: [
-                        {
-                            "className":      'more-details row-details-close',
-                            "orderable":      false,
-                            "data":           null,
-                            "defaultContent": '<span class="row-details row-details-close"></span>'
-                        },
-                        { "data": "order_id" },
-                        { "data": "line_item_name" },
-                        { "data": "images" },
-                        { "data": "text" },
-                        { "data": "color" },
-                        { "data": "no_of_faces" },
-                        { "data": "quantity" },
-                        { "data": "action" }
-                    ],
+                    ...columns,
                     displayStart: 0,
                     fnRowCallback: function(t, a, e, n) {
                         setTimeout(function() {
@@ -102,42 +111,46 @@ var project_array, TableAjax = function(t) {
                     e = $(this).attr("action-url");
                 window.location.href = e + "?" + a
             }), e.getTableWrapper().on('click', ' tbody td .row-details', function () {
-                var tr = $(this).closest('tr');
-                console.log(tr);
+                var tr = $(this).closest('tr');                
                 var table = e.getDataTable();
                 var row = table.row(tr);
         
-                if ( row.child.isShown() ) {
-                    // This row is already open - close it
+                if ( row.child.isShown() ) {                    
                     row.child.hide();
                     $(this).addClass("row-details-close").removeClass("row-details-open");
                     tr.removeClass('shown');
-                }
-                else {
-                    // Open this row
+                } else {                    
                     $(this).addClass("row-details-open").removeClass("row-details-close");
                     row.child( format(row.data()) ).show();
                     tr.addClass('shown');
                 }
+            }), e.getTableWrapper().on('change', ' tbody td .line-item-status', function () {
+                var order_id = $(this).attr('rel');
+                var status = $(this).val();
+                
+                $.post(SITE_URL + 'orders/change-status', { order_id: order_id, status: status }, function (data) {
+                    if ($.trim(data) == 'TRUE') {
+                        $('.order-id-'+order_id).val(status);
+                    }
+                });
+
             });
         };
 
-        function format ( d ) {
-            console.log(d)
-            // `d` is the original data object for the row
-            return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+        function format ( d ) {            
+            return '<table class="detail-row-table" cellpadding="5" cellspacing="0" border="0" style="width: 40%; padding-left:50px;">'+
                 '<tr>'+
-                    '<td>Full name:</td>'+
-                    '<td>'+d.name+'</td>'+
+                    '<td>Text:</td>'+
+                    '<td wi\\>'+d.text+'</td>'+
                 '</tr>'+
+                /* '<tr>'+
+                    '<td>Image Upload:</td>'+
+                    '<td>'+d.line_item_name+'</td>'+
+                '</tr>' +
                 '<tr>'+
-                    '<td>Extension number:</td>'+
-                    '<td>'+d.extn+'</td>'+
-                '</tr>'+
-                '<tr>'+
-                    '<td>Extra info:</td>'+
-                    '<td>And any further details here (images etc)...</td>'+
-                '</tr>'+
+                    '<td>PSD Upload:</td>'+
+                    '<td>'+d.line_item_name+'</td>'+
+                '</tr>' +  */               
             '</table>';
         }
     return {

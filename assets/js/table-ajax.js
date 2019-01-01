@@ -155,10 +155,7 @@ var project_array, TableAjax = function (t) {
             var lineItemId = $(this).attr('rel');
             var uploadType = $(this).attr('rel1');
 
-            var file = e.originalEvent.dataTransfer.files[0];
-
-            console.log(file);
-            console.log(uploadType);
+            var file = e.originalEvent.dataTransfer.files[0];          
 
             if (uploadType == 'Image') {
                 if ((file.type == 'image/png' || file.type == 'image/jpg' || file.type == 'image/jpeg') && lineItemId !== undefined && lineItemId !== '') {

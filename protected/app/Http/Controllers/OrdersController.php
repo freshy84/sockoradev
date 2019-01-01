@@ -83,16 +83,16 @@ class OrdersController extends Controller {
             $returnData[$key]['line_item_name'] = $val['title'];
 
             $v_image = '';
-            if(file_exists(LINE_ITEM_IMG.$val['id'].'/'.$val['v_image']) && $val['v_image'] != '' && $val['v_image'] !== null) {
-                $v_image = '<a class="fancybox" href="'.SITE_URL.LINE_ITEM_IMG.$val['id'].'/'.$val['v_image'].'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$val['id'].'/thumb/'.$val['v_image'].'" alt=""></a>';
+            if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$val['v_image']) && $val['v_image'] != '' && $val['v_image'] !== null) {
+                $v_image = '<a class="fancybox" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$val['v_image'].'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$val['v_image'].'" alt=""></a>';
             }
 
             $returnData[$key]['v_image'] = $v_image;
 
             $v_psd_file = '';
-            if(file_exists(LINE_ITEM_IMG.$val['id'].'/'.$val['v_psd_file']) && $val['v_psd_file'] != '' && $val['v_psd_file'] !== null) {
+            if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$val['v_psd_file']) && $val['v_psd_file'] != '' && $val['v_psd_file'] !== null) {
                 $imageName1 =  str_replace(explode('_', $val['v_psd_file'])[0].'_', '', $val['v_psd_file']);
-                $v_psd_file = '<a class="" href="'.SITE_URL.LINE_ITEM_IMG.$val['id'].'/'.$val['v_psd_file'].'" download="'.$imageName1.'">'.$imageName1.'</a>';
+                $v_psd_file = '<a class="" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$val['v_psd_file'].'" download="'.$imageName1.'">'.$imageName1.'</a>';
             }           
             $returnData[$key]['v_psd_file'] = $v_psd_file;
             
@@ -159,7 +159,7 @@ class OrdersController extends Controller {
             $line_item = LineItems::where('id', $data['lineItemId'])->first();
             if($line_item) {
                 if($data['uploadType'] == 'Image') {
-                    $line_item_path = LINE_ITEM_IMG.$line_item->id;
+                    $line_item_path = LINE_ITEM_FILES.$line_item->id;
                     if (!file_exists($line_item_path)) {                                           
                         mkdir($line_item_path.'/thumb', 0777, true);
                     }
@@ -169,13 +169,13 @@ class OrdersController extends Controller {
                     $imageName = $this->makeThumbnail($name,  $line_item_path.'/', $line_item_path.'/thumb/', 40, 40);
                     
                     if($line_item->v_image != '' && $line_item->v_image !== null) {
-                        unlink($line_item_path.'/'.$line_item->v_image);
+                        @unlink($line_item_path.'/'.$line_item->v_image);
                     }
                     $line_item->v_image = $imageName;
                     $line_item->save();
                     return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  '<a class="fancybox" href="'.SITE_URL.$line_item_path.'/'. $imageName.'"><img class="line-item-img" src="'.SITE_URL.$line_item_path.'/thumb/'. $imageName.'" alt=""></a>']);
                 } else {
-                    $line_item_path = LINE_ITEM_IMG.$line_item->id;
+                    $line_item_path = LINE_ITEM_FILES.$line_item->id;
                     if (!file_exists($line_item_path)) {                                           
                         mkdir($line_item_path.'/thumb', 0777, true);
                     }
@@ -183,7 +183,7 @@ class OrdersController extends Controller {
                     $image->move($line_item_path.'/', $imageName);  
                     
                     if($line_item->v_psd_file != '' && $line_item->v_psd_file !== null) {
-                        unlink($line_item_path.'/'.$line_item->v_psd_file);
+                        @unlink($line_item_path.'/'.$line_item->v_psd_file);
                     }
                     $line_item->v_psd_file = $imageName;
                     $line_item->save();

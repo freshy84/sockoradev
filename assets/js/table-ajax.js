@@ -155,19 +155,24 @@ var project_array, TableAjax = function (t) {
             var lineItemId = $(this).attr('rel');
             var uploadType = $(this).attr('rel1');
 
-            var file = e.originalEvent.dataTransfer.files[0];          
+            var file = e.originalEvent.dataTransfer.files[0];
+            
+            if (e.originalEvent.dataTransfer.files.length > 1) {
+                bootbox.alert("Only single file allowed.");
 
-            if (uploadType == 'Image') {
-                if ((file.type == 'image/png' || file.type == 'image/jpg' || file.type == 'image/jpeg') && lineItemId !== undefined && lineItemId !== '') {
-                    uploadLineItemFile(file, lineItemId, uploadType);
-                } else {
-                    bootbox.alert("Only .png .jpg .jpeg file is allowed.");
-                }
-            } else if (uploadType == 'PSD') {
-                if (((/\.(psd)$/i).test(file.name)) && lineItemId !== undefined && lineItemId !== '') {
-                    uploadLineItemFile(file, lineItemId, uploadType);
-                } else {
-                    bootbox.alert("Only PSD file allowed.");
+            } else {
+                if (uploadType == 'Image') {
+                    if ((file.type == 'image/png' || file.type == 'image/jpg' || file.type == 'image/jpeg') && lineItemId !== undefined && lineItemId !== '') {
+                        uploadLineItemFile(file, lineItemId, uploadType);
+                    } else {
+                        bootbox.alert("Only .png .jpg .jpeg file is allowed.");
+                    }
+                } else if (uploadType == 'PSD') {
+                    if (((/\.(psd)$/i).test(file.name)) && lineItemId !== undefined && lineItemId !== '') {
+                        uploadLineItemFile(file, lineItemId, uploadType);
+                    } else {
+                        bootbox.alert("Only PSD file allowed.");
+                    }
                 }
             }
 

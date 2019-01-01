@@ -27,7 +27,7 @@ var project_array, TableAjax = function (t) {
                         { "data": "color" },
                         { "data": "no_of_faces" },
                         { "data": "quantity" },
-                        { "data": "order_status" },
+                        { "data": "line_item_status" },
                         { "data": "action" }
                     ]
             }
@@ -125,12 +125,12 @@ var project_array, TableAjax = function (t) {
                 tr.addClass('shown');
             }
         }), e.getTableWrapper().on('change', ' tbody td .line-item-status', function () {
-            var order_id = $(this).attr('rel');
+            var line_item_id = $(this).attr('rel');
             var status = $(this).val();
 
-            $.post(SITE_URL + 'orders/change-status', { order_id: order_id, status: status }, function (data) {
+            $.post(SITE_URL + 'orders/change-status', { line_item_id: line_item_id, status: status }, function (data) {
                 if ($.trim(data) == 'TRUE') {
-                    $('.order-id-' + order_id).val(status);
+                    // $('.order-id-' + line_item_id).val(status);
                 }
             });
 

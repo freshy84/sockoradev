@@ -64,8 +64,7 @@ class WebhookController extends Controller {
                 foreach($orders->body->orders as $order) {   
                     $new = Orders::where('order_id', $order->id)->first();
                     if(!$new) {
-                        $new = new Orders;
-                        $new->e_status = 'New Order';
+                        $new = new Orders;                        
                     }                                   
                    
                     $new->order_id = $order->id;
@@ -90,7 +89,8 @@ class WebhookController extends Controller {
                         foreach($order->line_items as $line_item) {
                             $new1 = LineItems::where('line_item_id', $line_item->id)->first();
                             if(!$new1) {
-                                $new1 = new LineItems;            
+                                $new1 = new LineItems;    
+                                $new1->e_status = 'New Order';        
                             }                            
                             $new1->line_item_id = $line_item->id;
                             $new1->i_order_id = $new->id;
@@ -145,8 +145,7 @@ class WebhookController extends Controller {
         if($data) {
             $order = Orders::where('order_id', $data['id'])->first();
             if(!$order) {
-                $order = new Orders; 
-                $order->e_status = 'New Order';
+                $order = new Orders;                
             }
             
             $order->order_id = $data['id'];
@@ -171,7 +170,8 @@ class WebhookController extends Controller {
                 foreach($data['line_items'] as $value) {
                     $line_item = LineItems::where('line_item_id', $value['id'])->first();
                     if(!$line_item) {
-                        $line_item = new LineItems;            
+                        $line_item = new LineItems;    
+                        $line_item->e_status = 'New Order';
                     }
 
                     $line_item->line_item_id = $value['id'];

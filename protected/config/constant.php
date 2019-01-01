@@ -18,8 +18,8 @@ function getCurrentControllerAction() {
     return '';
 }
 
-define('JS_VERSION', '?ver=v.0.0.1');
-define('CSS_VERSION', '?ver=v.0.0.3');
+define('JS_VERSION', '?ver=v.0.0.2');
+define('CSS_VERSION', '?ver=v.0.0.4');
 define('HTML_VERSION', '?ver=v.0.0.1');
 
 $SITE_URL = $SITE_URL = env('APP_URL');

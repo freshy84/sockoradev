@@ -15,7 +15,7 @@ class OrdersController extends Controller {
     public function anyListAjax(Request $request) {
         
         $data = $request->all();
-        $sortColumn = array('order_name', 'lineitems.title', 'id', 'id', 'id', 'id', 'quantity', 'order_status');
+        $sortColumn = array('order_name', 'lineitems.title', 'id', 'id', 'id', 'id', 'quantity', 'e_status');
         $query = new LineItems;
         $query = $query->with('properties');
         $query = $query->join('orders', 'orders.id', 'lineitems.i_order_id');
@@ -24,7 +24,7 @@ class OrdersController extends Controller {
             $query = $query->where('orders.order_number', 'LIKE',  '%'. str_replace('#', '', $data['v_order_id']). '%');
         }
         if(isset($data['e_status']) && $data['e_status'] != '') {
-            $query = $query->where('orders.e_status', $data['e_status']);
+            $query = $query->where('e_status', $data['e_status']);
         }
         if(isset($data['v_line_item']) && $data['v_line_item'] != '') {
             $query = $query->where('title', 'LIKE', '%'. $data['v_line_item']. '%');
@@ -51,7 +51,7 @@ class OrdersController extends Controller {
             $query = $query->where('quantity', '<=', $data['i_quantity_max']);
         } 
 
-        $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name', 'orders.e_status as order_status');
+        $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name');
         $rec_per_page = REC_PER_PAGE;
         if(isset($data['length'])){
             if($data['length'] == '-1') {
@@ -116,14 +116,14 @@ class OrdersController extends Controller {
             $status = ['New Order', 'Design Complete', 'Mock-up Sent', 'Redo', 'Approved'];
             $statusOption = '';
             foreach($status as $stat) {
-                $statusOption .= '<option value="'.$stat.'" '. ($val['order_status'] == $stat ? 'selected=""' : '').'>'.$stat.'</option>';
+                $statusOption .= '<option value="'.$stat.'" '. ($val['e_status'] == $stat ? 'selected=""' : '').'>'.$stat.'</option>';
             }
             $returnData[$key]['images'] = ltrim($image, ', ');
             $returnData[$key]['text'] = $text;
             $returnData[$key]['color'] = $color;
             $returnData[$key]['no_of_faces'] = $noOfFaces;
             $returnData[$key]['quantity'] = $val['quantity'];
-            $returnData[$key]['order_status'] = '<select class="line-item-status order-id-'.$val['i_order_id'].'" rel="'.$val['i_order_id'].'">'. $statusOption .'</select>';
+            $returnData[$key]['line_item_status'] = '<select class="line-item-status line-item-id-'.$val['id'].'" rel="'.$val['id'].'">'. $statusOption .'</select>';
             $returnData[$key]['action'] = '';
         }
 
@@ -137,11 +137,11 @@ class OrdersController extends Controller {
         
     }
 
-    public function changeOrderStatus(Request $request) {
+    public function changeLineItemStatus(Request $request) {
         $data = $request->all();
        
-        if(isset($data['status']) && isset($data['order_id'])) {
-            $order = Orders::find($data['order_id']);
+        if(isset($data['status']) && isset($data['line_item_id'])) {
+            $order = LineItems::find($data['line_item_id']);
             if($order) {
                 $order->e_status = $data['status'];
                 $order->save();

@@ -64,7 +64,8 @@ class WebhookController extends Controller {
                 foreach($orders->body->orders as $order) {   
                     $new = Orders::where('order_id', $order->id)->first();
                     if(!$new) {
-                        $new = new Orders;            
+                        $new = new Orders;
+                        $new->e_status = 'New Order';
                     }                                   
                    
                     $new->order_id = $order->id;
@@ -117,8 +118,9 @@ class WebhookController extends Controller {
                                         if (!file_exists($line_item_path)) {                                           
                                             mkdir($line_item_path.'/thumb', 0777, true);
                                         }
-                                        
-                                        $imageName = $this->makeThumbnail($property->value,  $line_item_path.'/', $line_item_path.'/thumb/', 30, 30);
+                                        $imageName = $this->downloadImage($property->value);                                        
+                                        $imageName = $this->makeThumbnail($imageName,  $line_item_path.'/', $line_item_path.'/thumb/', 30, 30);
+
                                         if($imageName != '') {
                                             $new2->v_image_thumb = $imageName;
                                         }
@@ -143,7 +145,8 @@ class WebhookController extends Controller {
         if($data) {
             $order = Orders::where('order_id', $data['id'])->first();
             if(!$order) {
-                $order = new Orders;            
+                $order = new Orders; 
+                $order->e_status = 'New Order';
             }
             
             $order->order_id = $data['id'];
@@ -197,8 +200,9 @@ class WebhookController extends Controller {
                                 if (!file_exists($line_item_path)) {                                           
                                     mkdir($line_item_path.'/thumb', 0777, true);
                                 }
-                                
-                                $imageName = $this->makeThumbnail($property['value'],  $line_item_path.'/', $line_item_path.'/thumb/', 50, 50);
+
+                                $imageName = $this->downloadImage($property['value']);   
+                                $imageName = $this->makeThumbnail($imageName,  $line_item_path.'/', $line_item_path.'/thumb/', 30, 30);
                                 if($imageName != '') {
                                     $new2->v_image_thumb = $imageName;
                                 } else {

@@ -38,25 +38,23 @@ class Controller extends BaseController
         return $tmpFile;
     }
     
-    public function curl_get_img_contents($url) {
+    public function downloadImage($url) {
+        $filename = basename($url);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
         $html = curl_exec($ch);
-        $data = curl_exec($ch);
-        curl_close($ch);
-        return $data;
-    }
-
-    public function makeThumbnail($url, $source_folder, $thumb_folder, $thumb_width = 50, $thumb_height = 50) {
+        $content = curl_exec($ch);       
         
-        $content = $this->curl_get_img_contents($url);        
-        $filename = basename($url);
         $fp = fopen($source_folder.$filename, "w");
         fwrite($fp, $content);
         fclose($fp);
-        
+        curl_close($ch);
+        return $filename;
+    }
+
+    public function makeThumbnail($filename, $source_folder, $thumb_folder, $thumb_width = 50, $thumb_height = 50) {
         if(file_exists($source_folder.$filename)) {
             $source_image = $source_folder.$filename;
             //folder path setup

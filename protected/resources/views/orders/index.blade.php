@@ -34,14 +34,14 @@
 									<th class="no-sort" width="20%">
 										Images
 									</th>									
-									<th class="no-sort" width="15%">
+									<th class="no-sort" width="10%">
 										Color
 									</th width="10%">
-									<th class="no-sort">
-										Number of Faces
+									<th class="no-sort" width="10%">
+										Faces
 									</th>
 									<th width="10%">
-										Number of Line Items
+										Quantity
 									</th>
 									<th width="10%">
 										Status
@@ -67,14 +67,21 @@
 										<input type="text" name="v_color" class="form-control form-filter input-sm" placeholder="Color"/>
 									</td>
 									<td rowspan="1" colspan="1">
-										<input type="text" name="i_no_of_faces" class="form-control form-filter input-sm" placeholder="Number Of Faces"/>
+										<input type="text" name="i_no_of_faces" class="form-control form-filter input-sm" placeholder="Faces"/>
 									</td>
 									<td rowspan="1" colspan="1">
 										<input type="text" name="i_quantity_min" class="form-control form-filter input-sm" placeholder="Min"/>
 										<input type="text" name="i_quantity_max" class="form-control form-filter input-sm" placeholder="Max"  style="margin-top: 5px;"/>
 									</td>
-									<td rowspan="1" colspan="1">
-										<input type="text" name="e_status" class="form-control form-filter input-sm" placeholder="Number Of Faces"/>
+									<td rowspan="1" colspan="1">										
+										<select name="e_status" class="form-control form-filter input-sm">
+											<option value="">-- Select --</option>
+											<option value="New Order">New Order</option>
+											<option value="Design Complete">Design Complete</option>
+											<option value="Mock-up Sent">Mock-up Sent</option>
+											<option value="Redo">Redo</option>
+											<option value="Approved">Approved</option>
+										</select>
 									</td>
 									<td rowspan="1" class="actions" colspan="1">
 										<div class="margin-bottom-5">

@@ -15,13 +15,16 @@ class OrdersController extends Controller {
     public function anyListAjax(Request $request) {
         
         $data = $request->all();
-        $sortColumn = array('order_name', 'lineitems.title', 'id', 'id', 'id', 'id', 'quantity');
+        $sortColumn = array('order_name', 'lineitems.title', 'id', 'id', 'id', 'id', 'quantity', 'order_status');
         $query = new LineItems;
         $query = $query->with('properties');
         $query = $query->join('orders', 'orders.id', 'lineitems.i_order_id');
         
         if(isset($data['v_order_id']) && $data['v_order_id'] != '') {
-            $query = $query->where('orders.order_number', 'LIKE',  '%'. $data['v_order_id']. '%');
+            $query = $query->where('orders.order_number', 'LIKE',  '%'. str_replace('#', '', $data['v_order_id']). '%');
+        }
+        if(isset($data['e_status']) && $data['e_status'] != '') {
+            $query = $query->where('orders.e_status', $data['e_status']);
         }
         if(isset($data['v_line_item']) && $data['v_line_item'] != '') {
             $query = $query->where('title', 'LIKE', '%'. $data['v_line_item']. '%');
@@ -75,8 +78,23 @@ class OrdersController extends Controller {
         foreach($arrOrders['data'] as $key => $val) {
             $index = 0;                
             // $returnData[$key][$index++] = '<span class="row-details row-details-close"></span>';
+            $returnData[$key]['id'] = $val['id'];
             $returnData[$key]['order_id'] = $val['order_name'];
             $returnData[$key]['line_item_name'] = $val['title'];
+
+            $v_image = '';
+            if(file_exists(LINE_ITEM_IMG.$val['id'].'/'.$val['v_image']) && $val['v_image'] != '' && $val['v_image'] !== null) {
+                $v_image = '<a class="fancybox" href="'.SITE_URL.LINE_ITEM_IMG.$val['id'].'/'.$val['v_image'].'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$val['id'].'/thumb/'.$val['v_image'].'" alt=""></a>';
+            }
+
+            $returnData[$key]['v_image'] = $v_image;
+
+            $v_psd_file = '';
+            if(file_exists(LINE_ITEM_IMG.$val['id'].'/'.$val['v_psd_file']) && $val['v_psd_file'] != '' && $val['v_psd_file'] !== null) {
+                $imageName1 =  str_replace(explode('_', $val['v_psd_file'])[0].'_', '', $val['v_psd_file']);
+                $v_psd_file = '<a class="" href="'.SITE_URL.LINE_ITEM_IMG.$val['id'].'/'.$val['v_psd_file'].'" download="'.$imageName1.'">'.$imageName1.'</a>';
+            }           
+            $returnData[$key]['v_psd_file'] = $v_psd_file;
             
             $image = '';
             $text = '';
@@ -132,7 +150,50 @@ class OrdersController extends Controller {
             }
         }
         return 'FALSE';
+    }
 
+    public function uploadLineitemIimage(Request $request) {
+        $data = $request->all();
+        if(isset($data['image']) && count($data['image']) && isset($data['lineItemId']) && isset($data['uploadType'])) {
+            $image = $data['image'];
+            $line_item = LineItems::where('id', $data['lineItemId'])->first();
+            if($line_item) {
+                if($data['uploadType'] == 'Image') {
+                    $line_item_path = LINE_ITEM_IMG.$line_item->id;
+                    if (!file_exists($line_item_path)) {                                           
+                        mkdir($line_item_path.'/thumb', 0777, true);
+                    }
+                    $name = time().'_'.$image->getClientOriginalName();
+                    $image->move($line_item_path.'/', $name);  
+
+                    $imageName = $this->makeThumbnail($name,  $line_item_path.'/', $line_item_path.'/thumb/', 40, 40);
+                    
+                    if($line_item->v_image != '' && $line_item->v_image !== null) {
+                        unlink($line_item_path.'/'.$line_item->v_image);
+                    }
+                    $line_item->v_image = $imageName;
+                    $line_item->save();
+                    return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  '<a class="fancybox" href="'.SITE_URL.$line_item_path.'/'. $imageName.'"><img class="line-item-img" src="'.SITE_URL.$line_item_path.'/thumb/'. $imageName.'" alt=""></a>']);
+                } else {
+                    $line_item_path = LINE_ITEM_IMG.$line_item->id;
+                    if (!file_exists($line_item_path)) {                                           
+                        mkdir($line_item_path.'/thumb', 0777, true);
+                    }
+                    $imageName = time().'_'.$image->getClientOriginalName();
+                    $image->move($line_item_path.'/', $imageName);  
+                    
+                    if($line_item->v_psd_file != '' && $line_item->v_psd_file !== null) {
+                        unlink($line_item_path.'/'.$line_item->v_psd_file);
+                    }
+                    $line_item->v_psd_file = $imageName;
+                    $line_item->save();
+                    $imageName1 =  str_replace(explode('_', $imageName)[0].'_', '', $imageName);
+
+                    return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  '<a class="" href="'.SITE_URL.$line_item_path.'/'. $imageName.'" download="'.$imageName1.'">'.$imageName1.'</a>']);
+                }
+            }
+        }
+        return response()->json(['status' => 'TRUE']);
     }
 
 }

@@ -154,7 +154,7 @@ class OrdersController extends Controller {
 
     public function uploadLineitemIimage(Request $request) {
         $data = $request->all();
-        if(isset($data['image']) && count($data['image']) && isset($data['lineItemId']) && isset($data['uploadType'])) {
+        if(isset($data['image']) && isset($data['lineItemId']) && isset($data['uploadType'])) {
             $image = $data['image'];
             $line_item = LineItems::where('id', $data['lineItemId'])->first();
             if($line_item) {

@@ -27,9 +27,7 @@ var project_array, TableAjax = function (t) {
                         { "data": "color" },
                         { "data": "no_of_faces" },
                         { "data": "quantity" },
-                        { "data": "line_item_status" },
-                        { "data": "user_type" },
-                        { "data": "designer_note" },
+                        { "data": "line_item_status" },                        
                     ]
             }
         }
@@ -267,8 +265,6 @@ var project_array, TableAjax = function (t) {
             pdsHTml = '<button class="btn btn-sm blue-madison psd-upload-button">' + (d.v_psd_file == '' ? 'Upload' : 'Change') + '</button><input type="file" class="psd-file-input" style="display: none;"/> <div class="preview-psd">' + d.v_psd_file + '</div>';
             designNote = '<input type="text" name="v_designer_note" class="form-control input-sm designer-note" id="designer_note_'+d.id+'" rel="'+d.id+'" placeholder="Designer Note" value="'+d.designer_note+'" maxlength="500">';
         }
-
-        
 
         return '<table class="detail-row-table detail-row-' + d.id + '" cellpadding="5" cellspacing="0" border="0" style="width: 50%; padding-left:50px;" >' +
             '<tr>' +

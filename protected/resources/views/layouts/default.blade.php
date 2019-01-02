@@ -26,9 +26,6 @@
         <link href="{{ ASSET_URL }}plugins/jquery-file-upload/blueimp-gallery/blueimp-gallery.min.css{{CSS_VERSION}}" rel="stylesheet"/>
         <link href="{{ ASSET_URL }}plugins/jquery-file-upload/css/jquery.fileupload.css{{CSS_VERSION}}" rel="stylesheet"/>
         <link href="{{ ASSET_URL }}plugins/jquery-file-upload/css/jquery.fileupload-ui.css{{CSS_VERSION}}" rel="stylesheet"/>
-        <link href="{{ ASSET_URL }}plugins/bootstrap-fileinput/bootstrap-fileinput.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
-        <link href="{{ ASSET_URL }}plugins/bootstrap-daterangepicker/daterangepicker-bs3.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
-
         <link href="{{ ASSET_URL }}plugins/bootstrap-datepicker/css/datepicker3.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
         <link href="{{ ASSET_URL }}plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
         
@@ -47,7 +44,7 @@
         <link href="{{ ASSET_URL }}css/custom.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
         <link href="{{ ASSET_URL }}css/image-crop.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
         <link href="{{ ASSET_URL }}plugins/jcrop/css/jquery.Jcrop.min.css{{CSS_VERSION}}" rel="stylesheet" type="text/css"/>
-        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}plugins/fancybox/source/jquery.fancybox.css{{CSS_VERSION}}" media="screen" />
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}plugins/fancybox/dist/jquery.fancybox.min.css{{CSS_VERSION}}" media="screen" />
         
         <!-- END THEME STYLES -->
         <link rel="shortcut icon" href="{{ ASSET_URL }}favicon.ico"/>
@@ -87,8 +84,9 @@
         <script src="{{ ASSET_URL }}scripts/demo.js{{JS_VERSION}}" type="text/javascript"></script>
         <script src="{{ ASSET_URL }}scripts/components-form-tools.js{{JS_VERSION}}"></script>
         <script src="{{ ASSET_URL }}scripts/form-image-crop.js{{JS_VERSION}}" type="text/javascript"></script>
-        <script type="text/javascript" src="{{ASSET_URL}}/plugins/fancybox/source/jquery.fancybox.js?v=2.1.2"></script>
-        <script src="{{ ASSET_URL }}plugins/fancybox/source/helpers/jquery.fancybox-media.js?v=2.1.2" type="text/javascript" ></script>
+        
+        <script src="{{ ASSET_URL }}plugins/fancybox/dist/jquery.fancybox.min.js{{JS_VERSION}}" type="text/javascript" ></script>
+
         <script src="{{ASSET_URL}}js/custom_script.js{{JS_VERSION}}" type="text/javascript"></script>
         <script src="{{ASSET_URL}}js/custom_validation.js{{ JS_VERSION }}" type="text/javascript"></script>
         <script src="{{ASSET_URL}}js/image_upload.js{{ JS_VERSION }}" type="text/javascript"></script>
@@ -97,7 +95,6 @@
         <script src="{{ ASSET_URL }}plugins/jcrop/js/jquery.color.js{{ JS_VERSION }}" type="text/javascript"></script>
         <script src="{{ ASSET_URL }}plugins/jcrop/js/jquery.Jcrop.min.js{{ JS_VERSION }}" type="text/javascript"></script>
         <script src="{{ ASSET_URL }}plugins/moment.min.js"></script>
-        <script src="{{ ASSET_URL }}plugins/fullcalendar/fullcalendar.min.js"></script>
         <script src="{{ ASSET_URL }}js/calendar.js" type="text/javascript"></script>
 
         <!-- END PAGE LEVEL PLUGINS -->

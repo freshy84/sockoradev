@@ -7,13 +7,13 @@ use OhMyBrew\BasicShopifyAPI;
 
 class OrdersController extends Controller {
     
-    public function getIndex() {     
-        $auth_user = auth()->guard('admin')->user();
-        return View('orders.index',array('title' => 'Orders List', 'auth_user' => $auth_user));
+    public function getIndex() {
+        return View('orders.index',array('title' => 'Orders List'));
     }
     
     public function anyListAjax(Request $request) {
-        
+        // DB::enableQueryLog();
+        $authUser = auth()->guard('admin')->user();
         $data = $request->all();
         $sortColumn = array('order_name', 'lineitems.title', 'id', 'id', 'id', 'id', 'quantity', 'e_status');
         $query = new LineItems;
@@ -71,7 +71,9 @@ class OrdersController extends Controller {
 		} else {
 		    $query = $query->orderBy('order_name', 'desc')->orderBy('id', 'desc');
 		}
-        $orders = $query->paginate($rec_per_page);;
+        $orders = $query->paginate($rec_per_page);
+        /* pr(DB::getQueryLog());
+        exit; */
         $arrOrders = $orders->toArray();
         
         $returnData = [];
@@ -84,7 +86,7 @@ class OrdersController extends Controller {
 
             $v_image = '';
             if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$val['v_image']) && $val['v_image'] != '' && $val['v_image'] !== null) {
-                $v_image = '<a class="fancybox" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$val['v_image'].'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$val['v_image'].'" alt=""></a>';
+                $v_image = '<a data-fancybox data-caption="Caption for single image" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$val['v_image'].'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$val['v_image'].'" alt=""></a>';
             }
 
             $returnData[$key]['v_image'] = $v_image;
@@ -99,7 +101,7 @@ class OrdersController extends Controller {
             $image = '';
             $text = '';
             $color = '';
-            $noOfFaces = 0;
+            $noOfFaces = '';
 
             foreach ($val['properties'] as $k1 => $v1) {
                 if($v1['name'] == 'Color' || $v1['name'] == 'color') {
@@ -107,24 +109,32 @@ class OrdersController extends Controller {
                 } else if($v1['name'] == 'Text' || $v1['name'] == 'text') {
                     $text = $v1['value'];
                 } else if(preg_match("/image/i", $v1['name'])) {
-                    $image .= '<a class="mr5 fancybox" href="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/'.$v1['v_image_thumb'].'" data-fancybox-group="gallery" title="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
+                   $image .= '<a class="mr5 fancybox" data-fancybox="images" rel="gallery'.$v1['i_lineitem_id'].'" href="'.$v1['value'].'" data-fancybox-group="gallery" data-caption="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
+
+                    // $image .= '<a class="mr5 fancybox" href="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/'.$v1['v_image_thumb'].'" data-fancybox-group="gallery" title="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
                 } else if(preg_match("/Number of Faces/i", $v1['name'])) {
                     $noOfFaces = $v1['value'];
+                }                
+            }
+            if(in_array($authUser->e_user_type, ['Admin', 'Designer', 'Manager'])) {
+                $status = ['New Order', 'Design Complete', 'Mock-up Sent', 'Redo', 'Approved'];
+                $statusOption = '<select class="line-item-status line-item-id-'.$val['id'].'" rel="'.$val['id'].'">';
+                foreach($status as $stat) {
+                    $statusOption .= '<option value="'.$stat.'" '. ($val['e_status'] == $stat ? 'selected=""' : '').'>'.$stat.'</option>';
                 }
-                
+                $statusOption .= '</select>';
+            } else {
+                $statusOption = $val['e_status'];
             }
-            $status = ['New Order', 'Design Complete', 'Mock-up Sent', 'Redo', 'Approved'];
-            $statusOption = '';
-            foreach($status as $stat) {
-                $statusOption .= '<option value="'.$stat.'" '. ($val['e_status'] == $stat ? 'selected=""' : '').'>'.$stat.'</option>';
-            }
+
             $returnData[$key]['images'] = ltrim($image, ', ');
             $returnData[$key]['text'] = $text;
             $returnData[$key]['color'] = $color;
             $returnData[$key]['no_of_faces'] = $noOfFaces;
             $returnData[$key]['quantity'] = $val['quantity'];
-            $returnData[$key]['line_item_status'] = '<select class="line-item-status line-item-id-'.$val['id'].'" rel="'.$val['id'].'">'. $statusOption .'</select>';
-            $returnData[$key]['action'] = '';
+            $returnData[$key]['line_item_status'] = $statusOption;
+            $returnData[$key]['user_type'] = $authUser->e_user_type;
+            $returnData[$key]['designer_note'] = $val['v_designer_note'] !== null ? $val['v_designer_note'] : '';
         }
 
         $return_data['data'] = $returnData;
@@ -151,7 +161,20 @@ class OrdersController extends Controller {
         }
         return 'FALSE';
     }
+    public function updateDesignerNote(Request $request) {
+            $data = $request->all();
+        
+            if(array_key_exists("note", $data) && isset($data['line_item_id'])) {
+                $order = LineItems::find($data['line_item_id']);
+                if($order) {
+                    $order->v_designer_note = $data['note'];
+                    $order->save();
 
+                    return 'TRUE';
+                }
+            }
+            return 'FALSE';
+        }
     public function uploadLineitemIimage(Request $request) {
         $data = $request->all();
         if(isset($data['image']) && isset($data['lineItemId']) && isset($data['uploadType'])) {

@@ -28,7 +28,8 @@ var project_array, TableAjax = function (t) {
                         { "data": "no_of_faces" },
                         { "data": "quantity" },
                         { "data": "line_item_status" },
-                        { "data": "action" }
+                        { "data": "user_type" },
+                        { "data": "designer_note" },
                     ]
             }
         }
@@ -37,7 +38,13 @@ var project_array, TableAjax = function (t) {
             src: $("#datatable_ajax"),
             onSuccess: function (t) {
                 setInterval(() => {
-                    $('.fancybox').fancybox();
+                    $('.fancybox').fancybox({
+                        buttons : [
+                            'download',
+                            'thumbs',
+                            'close'
+                          ]
+                    });
                 }, 500);
             },
             onError: function (t) { },
@@ -176,6 +183,18 @@ var project_array, TableAjax = function (t) {
                 }
             }
 
+        }), e.getTableWrapper().on('blur', '.designer-note', function (e) {
+            e.preventDefault();
+            var lineItemId = $(this).attr('rel');
+            if (lineItemId != '') {
+                $.post(SITE_URL + 'orders/update-designer-note', { line_item_id: lineItemId, 'note': $(this).val() }, function (response) {
+                    if (response == 'TRUE') {
+                            
+                    }
+                })
+               
+            }          
+
         }), e.getTableWrapper().on('click', '.image-upload-button', function (e) {
             $(this).closest('tr').find('.image-file-input').trigger('click');
 
@@ -239,18 +258,34 @@ var project_array, TableAjax = function (t) {
     }
 
     function format(d) {
-        return '<table class="detail-row-table detail-row-' + d.id + '" cellpadding="5" cellspacing="0" border="0" style="width: 40%; padding-left:50px;" >' +
+        var imageHtml = '<div class="preview-image">' + d.v_image + '</div>';
+        var pdsHTml = '<div class="preview-psd">'+ d.v_psd_file +'</div>';
+        var designNote =  d.designer_note;
+        
+        if (d.user_type == 'Admin' || d.user_type == 'Designer' || d.user_type == 'Manager') {
+            imageHtml = '<button class="btn btn-sm blue-madison image-upload-button">' + (d.v_image == '' ? 'Upload' : 'Change') + '</button><input type="file" class="image-file-input" style="display: none;"/> <div class="preview-image">' + d.v_image + '</div>';
+            pdsHTml = '<button class="btn btn-sm blue-madison psd-upload-button">' + (d.v_psd_file == '' ? 'Upload' : 'Change') + '</button><input type="file" class="psd-file-input" style="display: none;"/> <div class="preview-psd">' + d.v_psd_file + '</div>';
+            designNote = '<input type="text" name="v_designer_note" class="form-control input-sm designer-note" id="designer_note_'+d.id+'" rel="'+d.id+'" placeholder="Designer Note" value="'+d.designer_note+'" maxlength="500">';
+        }
+
+        
+
+        return '<table class="detail-row-table detail-row-' + d.id + '" cellpadding="5" cellspacing="0" border="0" style="width: 50%; padding-left:50px;" >' +
             '<tr>' +
-            '<td>Text:</td>' +
-            '<td>' + d.text + '</td>' +
+                '<td><strong>Text: </strong></td>' +
+                '<td>' + d.text + '</td>' +
+            '</tr>' +
+            '<tr>' +
+                '<td width="110px"><strong>Designer Note: </strong></td>' +
+                '<td>' + designNote + '</td>' +
             '</tr>' +
             '<tr class="file-drag-div" rel="' + d.id + '" rel1="Image">' +
-            '<td width="95px">Image Upload:</td>' +
-            '<td><button class="btn btn-sm blue-madison image-upload-button">'+ (d.v_image == '' ? 'Upload' : 'Change') +'</button><input type="file" class="image-file-input" style="display: none;"/> <div class="preview-image">'+ d.v_image +'</div></td>' +
+                '<td ><strong>Image: </strong></td>' +
+                '<td>' +imageHtml+ '</td>'+
             '</tr>' +
             '<tr class="file-drag-div file-drag-div1" rel="' + d.id + '"  rel1="PSD">'+
-                '<td>PSD Upload:</td>'+
-                '<td><button class="btn btn-sm blue-madison psd-upload-button">'+ (d.v_psd_file == '' ? 'Upload' : 'Change') +'</button><input type="file" class="psd-file-input" style="display: none;"/> <div class="preview-psd">'+ d.v_psd_file +'</div></td>'+
+                '<td><strong>PSD: </strong></td>'+
+                '<td>'+pdsHTml+'</td>'+
             '</tr>' + 
             '</table>';
     }

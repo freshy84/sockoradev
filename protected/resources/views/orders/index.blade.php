@@ -45,10 +45,7 @@
 									</th>
 									<th width="10%">
 										Status
-									</th>
-									<th style="padding-right: 0px; background-image: none ! important align:right;" class="actions no-sort" width="10%">
-										Actions
-									</th>
+									</th>									
 								</tr>
 								<tr role="row" class="filter">		
 									<td rowspan="1" colspan="1">
@@ -82,13 +79,8 @@
 											<option value="Redo">Redo</option>
 											<option value="Approved">Approved</option>
 										</select>
-									</td>
-									<td rowspan="1" class="actions" colspan="1">
-										<div class="margin-bottom-5">
-											<button class="btn btn-sm blue-madison filter-submit margin-bottom"><i class="fa fa-search"></i> Search</button>
-											<button class="btn btn-sm default filter-cancel"><i class="fa fa-times"></i> Reset</button>
-										</div>
-									</td>
+										<button class="btn btn-sm blue-madison filter-submit hide"><i class="fa fa-search"></i> Search</button>
+									</td>									
 								</tr>                                
 							</thead>
 							<tbody>
@@ -104,7 +96,11 @@
     $(document).ready(function(){
 		var url = SITE_URL + 'orders/list-ajax';
 		var order = [[0, "desc"]];
-        TableAjax.init(url, order);
+		TableAjax.init(url, order);
+		setTimeout(() => {
+			$('.table-group-actions').html('<button class="btn btn-sm blue-madison filter-submit"><i class="fa fa-search"></i> Search</button> <button class="btn btn-sm default filter-cancel"><i class="fa fa-times"></i> Reset</button>');
+						
+		}, 100);
 	});
 </script>
 @stop

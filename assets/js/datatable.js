@@ -108,12 +108,12 @@ var Datatable = function() {
                     }), $.uniform.update(t), s()
                 }), a.on("change", 'tbody > tr > td:nth-child(1) input[type="checkbox"]', function() {
                     s()
-                }), a.on("click", ".filter-submit", function(t) {
+                }), $(document).on("click", "#datatable_ajax_wrapper .filter-submit", function(t) {
                     t.preventDefault(), o.submitFilter()
                 }), a.on("keyup", 'input[type="text"]', function(t) {
                     var e = t.keyCode;
                     13 == e && (t.preventDefault(), o.submitFilter())
-                }), a.on("click", ".filter-cancel", function(t) {
+                }),  $(document).on("click", "#datatable_ajax_wrapper .filter-cancel", function(t) {
                     t.preventDefault(), o.resetFilter()
                 })
             }

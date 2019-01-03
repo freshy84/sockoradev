@@ -177,7 +177,7 @@ var project_array, TableAjax = function (t) {
                         });
 
                         setTimeout(() => {
-                            if (fileSize <= 10240) {
+                            if ((fileSize / 1024) <= 10240) {
                                 if (status == 'false') {
                                     bootbox.alert("Only .png .jpg .jpeg file is allowed.");
                                 } else {
@@ -200,7 +200,7 @@ var project_array, TableAjax = function (t) {
                         });
 
                         setTimeout(() => {
-                            if (fileSize <= 10240) {
+                            if ((fileSize / 1024) <= 10240) {
                                 if (status == 'false') {
                                     bootbox.alert("Only PSD file allowed.");
                                 } else {
@@ -243,7 +243,8 @@ var project_array, TableAjax = function (t) {
                 if (lineItemId !== undefined && lineItemId !== '') {
                     var status = true;
                     var fileSize = 0;
-                    
+                    console.log(files);
+
                     $.each(files, function (ind, file) {
                         if ((file.type != 'image/png' && file.type != 'image/jpg' && file.type != 'image/jpeg')) {
                             status = false;
@@ -253,7 +254,8 @@ var project_array, TableAjax = function (t) {
                     });
 
                     setTimeout(() => {
-                        if (fileSize <= 10240) {
+                        
+                        if ((fileSize / 1024) <= 10240) {
                             if (status == 'false') {
                                 bootbox.alert("Only .png .jpg .jpeg file is allowed.");
                             } else {
@@ -284,7 +286,7 @@ var project_array, TableAjax = function (t) {
                 });
 
                 setTimeout(() => {
-                    if (fileSize <= 10240) {
+                    if ((fileSize / 1024) <= 10240) {
                         if (status == 'false') {
                             bootbox.alert("Only PSD file allowed.");
                         } else {

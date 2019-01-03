@@ -85,18 +85,34 @@ class OrdersController extends Controller {
             $returnData[$key]['line_item_name'] = $val['title'];
 
             $v_image = '';
-            if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$val['v_image']) && $val['v_image'] != '' && $val['v_image'] !== null) {
-                $v_image = '<a data-fancybox data-caption="Caption for single image" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$val['v_image'].'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$val['v_image'].'" alt=""></a>';
+            if($val['v_image'] != '' && $val['v_image'] !== null) {
+                $images = json_decode($val['v_image'], true);
+                $images = is_array($images) ? $images : [];
+
+                foreach ($images as $value) {
+                    if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$value) && $value != '') {
+                        $v_image .= '<a class="fancybox mr5" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$value.'" alt=""></a>';
+                    }
+                }
             }
 
             $returnData[$key]['v_image'] = $v_image;
 
             $v_psd_file = '';
-            if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$val['v_psd_file']) && $val['v_psd_file'] != '' && $val['v_psd_file'] !== null) {
-                $imageName1 =  str_replace(explode('_', $val['v_psd_file'])[0].'_', '', $val['v_psd_file']);
-                $v_psd_file = '<a class="" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$val['v_psd_file'].'" download="'.$imageName1.'">'.$imageName1.'</a>';
-            }           
-            $returnData[$key]['v_psd_file'] = $v_psd_file;
+            
+            if($val['v_psd_file'] != '' && $val['v_psd_file'] !== null) {
+                $psd_files = json_decode($val['v_psd_file'], true);
+                $psd_files = is_array($psd_files) ? $psd_files : [];
+                
+                foreach($psd_files as $value) {                    
+                     if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$value) && $value != '') {
+                        $imageName1 =  str_replace(explode('_', $value)[0].'_', '', $value);
+                        $v_psd_file .= ', <a class="" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'" download="'.$imageName1.'">'.$imageName1.'</a>';
+                    }          
+                }
+            }
+
+            $returnData[$key]['v_psd_file'] = ltrim($v_psd_file, ',');
             
             $image = '';
             $text = '';
@@ -177,8 +193,9 @@ class OrdersController extends Controller {
         }
     public function uploadLineitemIimage(Request $request) {
         $data = $request->all();
-        if(isset($data['image']) && isset($data['lineItemId']) && isset($data['uploadType'])) {
-            $image = $data['image'];
+        if(isset($data['files']) && isset($data['lineItemId']) && isset($data['uploadType'])) {
+            $files = $data['files'];
+           
             $line_item = LineItems::where('id', $data['lineItemId'])->first();
             if($line_item) {
                 if($data['uploadType'] == 'Image') {
@@ -186,33 +203,69 @@ class OrdersController extends Controller {
                     if (!file_exists($line_item_path)) {                                           
                         mkdir($line_item_path.'/thumb', 0777, true);
                     }
-                    $name = time().'_'.$image->getClientOriginalName();
-                    $image->move($line_item_path.'/', $name);  
-
-                    $imageName = $this->makeThumbnail($name,  $line_item_path.'/', $line_item_path.'/thumb/', 40, 40);
                     
-                    if($line_item->v_image != '' && $line_item->v_image !== null) {
-                        @unlink($line_item_path.'/'.$line_item->v_image);
+                    $v_images = [];
+                    $imageHtml = '';
+
+                    foreach($files as $key => $file) {
+                        $name = time().$key.'_'.$file->getClientOriginalName();
+                        $file->move($line_item_path.'/', $name);
+                        $imageName = $this->makeThumbnail($name,  $line_item_path.'/', $line_item_path.'/thumb/', 40, 40);                        
+                        $v_images[] = $imageName;
+
+                        $imageHtml .= '<a class="fancybox mr5" href="'.SITE_URL.$line_item_path.'/'. $imageName.'"><img class="line-item-img" src="'.SITE_URL.$line_item_path.'/thumb/'. $imageName.'" alt=""></a>';
                     }
-                    $line_item->v_image = $imageName;
+                    
+                    $oldImages = [];
+                    
+                    if($line_item->v_image != null) {
+                        $oldImages = json_decode($line_item->v_image, true);
+                    }
+
+                    if(!is_array($oldImages)) {
+                        $oldImages = [];
+                    }
+
+                    $v_images = array_merge($oldImages, $v_images);
+                    $line_item->v_image = json_encode($v_images);
                     $line_item->save();
-                    return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  '<a class="fancybox" href="'.SITE_URL.$line_item_path.'/'. $imageName.'"><img class="line-item-img" src="'.SITE_URL.$line_item_path.'/thumb/'. $imageName.'" alt=""></a>']);
+
+                    return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  $imageHtml]);
+
                 } else {
                     $line_item_path = LINE_ITEM_FILES.$line_item->id;
                     if (!file_exists($line_item_path)) {                                           
                         mkdir($line_item_path.'/thumb', 0777, true);
                     }
-                    $imageName = time().'_'.$image->getClientOriginalName();
-                    $image->move($line_item_path.'/', $imageName);  
-                    
-                    if($line_item->v_psd_file != '' && $line_item->v_psd_file !== null) {
-                        @unlink($line_item_path.'/'.$line_item->v_psd_file);
-                    }
-                    $line_item->v_psd_file = $imageName;
-                    $line_item->save();
-                    $imageName1 =  str_replace(explode('_', $imageName)[0].'_', '', $imageName);
+                    $imageHtml = '';
+                    $v_images = [];
 
-                    return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  '<a class="" href="'.SITE_URL.$line_item_path.'/'. $imageName.'" download="'.$imageName1.'">'.$imageName1.'</a>']);
+                    foreach($files as $key => $file) {
+                        $imageName = time(). $key .'_'.$file->getClientOriginalName();
+                        $file->move($line_item_path.'/', $imageName);  
+                        $imageName1 =  str_replace(explode('_', $imageName)[0].'_', '', $imageName);
+                        $v_images[] = $imageName;
+
+                        $imageHtml .= ', <a class="" href="'.SITE_URL.$line_item_path.'/'. $imageName.'" download="'.$imageName1.'">'.$imageName1.'</a>';
+                    }
+
+                    $oldFiles = [];
+                    
+                    if($line_item->v_psd_file != null) {
+                        $oldFiles = json_decode($line_item->v_psd_file, true);
+                    }
+                    
+                    if(!is_array($oldFiles)) {
+                        $oldFiles = [];
+                    }
+
+                    $v_images = array_merge($oldFiles, $v_images);
+                    $line_item->v_psd_file = json_encode($v_images);
+                    $line_item->save();
+
+                    $imageHtml = ltrim($imageHtml, ', ');
+
+                    return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  $imageHtml]);
                 }
             }
         }

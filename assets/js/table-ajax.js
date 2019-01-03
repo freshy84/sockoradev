@@ -166,34 +166,48 @@ var project_array, TableAjax = function (t) {
             } else {
                 if (lineItemId !== undefined && lineItemId !== '') {
                     if (uploadType == 'Image') {
-                        status = true;
+                        var status = true;
+                        var fileSize = 0; 
+
                         $.each(files, function (ind, file) {
                             if ((file.type != 'image/png' && file.type != 'image/jpg' && file.type != 'image/jpeg')) {
                                 status = false;
                             }
+                            fileSize += file.size;
                         });
 
                         setTimeout(() => {
-                            if (status == 'false') {
-                                bootbox.alert("Only .png .jpg .jpeg file is allowed.");
+                            if (fileSize <= 10240) {
+                                if (status == 'false') {
+                                    bootbox.alert("Only .png .jpg .jpeg file is allowed.");
+                                } else {
+                                    uploadLineItemFile(files, lineItemId, uploadType);
+                                }
                             } else {
-                                uploadLineItemFile(files, lineItemId, uploadType);
-                            }
+                                bootbox.alert("You can only upload a maximum 10M at a time.");
+                            } 
                         }, 500);
 
                     } else if (uploadType == 'PSD') {
-                        status = true;
+                        var status = true;
+                        var fileSize = 0; 
+
                         $.each(files, function (ind, file) {
                             if (!(/\.(psd)$/i).test(file.name)) {
                                 status = false;
+                                fileSize += file.size;
                             }
                         });
 
                         setTimeout(() => {
-                            if (status == 'false') {
-                                bootbox.alert("Only PSD file allowed.");
+                            if (fileSize <= 10240) {
+                                if (status == 'false') {
+                                    bootbox.alert("Only PSD file allowed.");
+                                } else {
+                                    uploadLineItemFile(files, lineItemId, uploadType);
+                                }
                             } else {
-                                uploadLineItemFile(files, lineItemId, uploadType);
+                                bootbox.alert("You can only upload a maximum 10M at a time.");
                             }
                         }, 500);
                     }
@@ -227,19 +241,27 @@ var project_array, TableAjax = function (t) {
 
             } else {
                 if (lineItemId !== undefined && lineItemId !== '') {
-                    status = true;
+                    var status = true;
+                    var fileSize = 0;
+                    
                     $.each(files, function (ind, file) {
                         if ((file.type != 'image/png' && file.type != 'image/jpg' && file.type != 'image/jpeg')) {
                             status = false;
                         }
+                        fileSize += file.size;
+
                     });
 
                     setTimeout(() => {
-                        if (status == 'false') {
-                            bootbox.alert("Only .png .jpg .jpeg file is allowed.");
+                        if (fileSize <= 10240) {
+                            if (status == 'false') {
+                                bootbox.alert("Only .png .jpg .jpeg file is allowed.");
+                            } else {
+                                uploadLineItemFile(files, lineItemId, 'Image');
+                            }
                         } else {
-                            uploadLineItemFile(files, lineItemId, 'Image');
-                        }
+                            bootbox.alert("You can only upload a maximum 10M at a time.");
+                        } 
                     }, 500);
                 }
             }
@@ -252,19 +274,25 @@ var project_array, TableAjax = function (t) {
 
             } else {
                 status = true;
-
+                var fileSize = 0;
                 $.each(files, function (ind, file) {
                     if (!(/\.(psd)$/i).test(file.name)) {
                         status = false;
                     }
+
+                    fileSize += file.size;
                 });
 
                 setTimeout(() => {
-                    if (status == 'false') {
-                        bootbox.alert("Only PSD file allowed.");
+                    if (fileSize <= 10240) {
+                        if (status == 'false') {
+                            bootbox.alert("Only PSD file allowed.");
+                        } else {
+                            uploadLineItemFile(files, lineItemId, 'PSD');
+                        }
                     } else {
-                        uploadLineItemFile(files, lineItemId, 'PSD');
-                    }
+                        bootbox.alert("You can only upload a maximum 10M at a time.");
+                    } 
                 }, 500);
             }
 

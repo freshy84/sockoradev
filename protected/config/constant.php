@@ -18,7 +18,7 @@ function getCurrentControllerAction() {
     return '';
 }
 
-define('JS_VERSION', '?ver=v.0.0.2');
+define('JS_VERSION', '?ver=v.0.0.3');
 define('CSS_VERSION', '?ver=v.0.0.4');
 define('HTML_VERSION', '?ver=v.0.0.1');
 

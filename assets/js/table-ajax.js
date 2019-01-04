@@ -44,12 +44,15 @@ var project_array, TableAjax = function (t) {
                         ]
                     });
 
-                    $('[data-fancybox^="gallery"]').fancybox({
+                    $('[data-fancybox^="gallery"], [data-fancybox^="line-item-images"], [data-fancybox^="line-item-new-images"]').fancybox({
                         buttons: [
                             'download',
                             'thumbs',
                             'close'
-                        ]
+                        ], 
+                        thumbs : {
+                            autoStart : true
+                          } 
                       });
                 }, 500);
             },

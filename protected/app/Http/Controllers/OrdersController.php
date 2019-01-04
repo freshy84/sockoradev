@@ -260,7 +260,7 @@ class OrdersController extends Controller {
                         $line_item->v_new_image = json_encode($v_images);
                     }
                     $line_item->save();
-
+                    
                     return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  $imageHtml]);
 
                 } else {                   

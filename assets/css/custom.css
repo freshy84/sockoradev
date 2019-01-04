@@ -614,5 +614,5 @@ table.detail-row-table tbody tr:first-child td{border-top: none;}
 table.detail-row-table tbody td{border-top: 1px solid #ddd; padding: 8px;}
 .table tr.heading > th { vertical-align: middle;}
 .line-item-status{height: 28px;}
-.preview-image {display: inline;}
-.preview-psd{vertical-align: middle; display: inline-block;}
+.preview-image, .preview-new-image {display: inline;}
+.preview-psd, .preview-new-psd{vertical-align: middle; display: inline-block;}

@@ -43,6 +43,14 @@ var project_array, TableAjax = function (t) {
                             'close'
                         ]
                     });
+
+                    $('[data-fancybox^="gallery"]').fancybox({
+                        buttons: [
+                            'download',
+                            'thumbs',
+                            'close'
+                        ]
+                      });
                 }, 500);
             },
             onError: function (t) { },
@@ -154,8 +162,6 @@ var project_array, TableAjax = function (t) {
             // $('.file-drag-div').not(e).css('border', 'none').css('background', 'none');
 
         }), e.getTableWrapper().on('drop', '.file-drag-div', function (e) {
-            /* $(this).css('border', 'none');
-            $(this).css('background', 'none'); */
             e.preventDefault();
             var lineItemId = $(this).attr('rel');
             var uploadType = $(this).attr('rel1');
@@ -165,7 +171,7 @@ var project_array, TableAjax = function (t) {
                 bootbox.alert("You can only upload a maximum of 5 files at a time.");
             } else {
                 if (lineItemId !== undefined && lineItemId !== '') {
-                    if (uploadType == 'Image') {
+                    if (uploadType == 'Image' || uploadType == 'NewImage') {
                         var status = true;
                         var fileSize = 0; 
 
@@ -178,7 +184,7 @@ var project_array, TableAjax = function (t) {
 
                         setTimeout(() => {
                             if ((fileSize / 1024) <= 10240) {
-                                if (status == 'false') {
+                                if (status === false) {
                                     bootbox.alert("Only .png .jpg .jpeg file is allowed.");
                                 } else {
                                     uploadLineItemFile(files, lineItemId, uploadType);
@@ -188,10 +194,10 @@ var project_array, TableAjax = function (t) {
                             } 
                         }, 500);
 
-                    } else if (uploadType == 'PSD') {
+                    } else if (uploadType == 'PSD' || uploadType == 'NewPSD') {
                         var status = true;
                         var fileSize = 0; 
-
+                        
                         $.each(files, function (ind, file) {
                             if (!(/\.(psd)$/i).test(file.name)) {
                                 status = false;
@@ -201,7 +207,7 @@ var project_array, TableAjax = function (t) {
 
                         setTimeout(() => {
                             if ((fileSize / 1024) <= 10240) {
-                                if (status == 'false') {
+                                if (status === false) {
                                     bootbox.alert("Only PSD file allowed.");
                                 } else {
                                     uploadLineItemFile(files, lineItemId, uploadType);
@@ -226,15 +232,13 @@ var project_array, TableAjax = function (t) {
                
             }          
 
-        }), e.getTableWrapper().on('click', '.image-upload-button', function (e) {
-            $(this).closest('tr').find('.image-file-input').trigger('click');
+        }), e.getTableWrapper().on('click', '.image-upload-button, .new-image-upload-button, .psd-upload-button, .new-psd-upload-button', function (e) {
+            $(this).closest('td').find('input[type=file]').trigger('click');
 
-        }), e.getTableWrapper().on('click', '.psd-upload-button', function (e) {
-            $(this).closest('tr').find('.psd-file-input').trigger('click');
-
-        }), e.getTableWrapper().on('change', '.image-file-input', function (e) {
+        }), e.getTableWrapper().on('change', '.image-file-input, .new-image-file-input', function (e) {
             var files = e.currentTarget.files;
-            var lineItemId = $(this).closest('tr').attr('rel');
+            var lineItemId = $(this).closest('td').attr('rel');
+            var uploadType = $(this).closest('td').attr('rel1');
 
             if (files.length > 5) {
                 bootbox.alert("You can only upload a maximum of 5 files at a time.");
@@ -243,7 +247,6 @@ var project_array, TableAjax = function (t) {
                 if (lineItemId !== undefined && lineItemId !== '') {
                     var status = true;
                     var fileSize = 0;
-                    console.log(files);
 
                     $.each(files, function (ind, file) {
                         if ((file.type != 'image/png' && file.type != 'image/jpg' && file.type != 'image/jpeg')) {
@@ -256,10 +259,10 @@ var project_array, TableAjax = function (t) {
                     setTimeout(() => {
                         
                         if ((fileSize / 1024) <= 10240) {
-                            if (status == 'false') {
-                                bootbox.alert("Only .png .jpg .jpeg file is allowed.");
+                            if (status) {
+                                uploadLineItemFile(files, lineItemId, uploadType);
                             } else {
-                                uploadLineItemFile(files, lineItemId, 'Image');
+                                bootbox.alert("Only .png .jpg .jpeg file is allowed.");
                             }
                         } else {
                             bootbox.alert("You can only upload a maximum 10M at a time.");
@@ -268,14 +271,16 @@ var project_array, TableAjax = function (t) {
                 }
             }
                         
-        }), e.getTableWrapper().on('change', '.psd-file-input', function (e) {
+        }), e.getTableWrapper().on('change', '.psd-file-input, .new-psd-file-input', function (e) {
             var files = e.currentTarget.files;
-            var lineItemId = $(this).closest('tr').attr('rel');
+            var lineItemId = $(this).closest('td').attr('rel');
+            var uploadType = $(this).closest('td').attr('rel1');
+
             if (files.length > 5) {
                 bootbox.alert("You can only upload a maximum of 5 files at a time.");
 
             } else {
-                status = true;
+                var status = true;
                 var fileSize = 0;
                 $.each(files, function (ind, file) {
                     if (!(/\.(psd)$/i).test(file.name)) {
@@ -287,10 +292,10 @@ var project_array, TableAjax = function (t) {
 
                 setTimeout(() => {
                     if ((fileSize / 1024) <= 10240) {
-                        if (status == 'false') {
-                            bootbox.alert("Only PSD file allowed.");
+                        if(status) {
+                            uploadLineItemFile(files, lineItemId, uploadType);
                         } else {
-                            uploadLineItemFile(files, lineItemId, 'PSD');
+                            bootbox.alert("Only PSD file allowed.");
                         }
                     } else {
                         bootbox.alert("You can only upload a maximum 10M at a time.");
@@ -309,12 +314,17 @@ var project_array, TableAjax = function (t) {
 
         formData.append('lineItemId', lineItemId);
         formData.append('uploadType', uploadType);
+
         if (uploadType == 'PSD') {
-            $('.detail-row-' + lineItemId).find('.psd-upload-button').text('Uploading...').attr('disabled');
-           
+            $('.detail-row-' + lineItemId).find('.psd-upload-button').text('Uploading...').attr('disabled');           
+        } else if (uploadType == 'NewPSD') {
+            $('.detail-row-' + lineItemId).find('.new-psd-upload-button').text('Uploading...').attr('disabled');
+        } else if (uploadType == 'NewImage') {
+            $('.detail-row-' + lineItemId).find('.new-image-upload-button').text('Uploading...').attr('disabled');              
         } else {
             $('.detail-row-' + lineItemId).find('.image-upload-button').text('Uploading...').attr('disabled');
         }
+        
         $.ajax({
             url: SITE_URL + 'orders/upload-lineitem-image',
             type: "POST",
@@ -328,43 +338,66 @@ var project_array, TableAjax = function (t) {
                         $('.detail-row-' + lineItemId).find('.psd-upload-button').text('Change').removeAttr('disabled');
                         $('.detail-row-' + lineItemId).find('.preview-psd').append(response.imageHtml);
                         $('.detail-row-' + lineItemId).find('.psd-file-input').val('');
-                    } else {
+                    } else if (uploadType == 'NewPSD') {
+                        $('.detail-row-' + lineItemId).find('.new-psd-upload-button').text('Change').removeAttr('disabled');
+                        $('.detail-row-' + lineItemId).find('.preview-new-psd').append(response.imageHtml);
+                        $('.detail-row-' + lineItemId).find('.new-psd-file-input').val('');
+                    } else if (uploadType == 'Image') {
                         $('.detail-row-' + lineItemId).find('.image-upload-button').text('Change').removeAttr('disabled');
                         $('.detail-row-' + lineItemId).find('.preview-image').append(response.imageHtml);
                         $('.detail-row-' + lineItemId).find('.image-file-input').val('');
+                    } else  {
+                        $('.detail-row-' + lineItemId).find('.new-image-upload-button').text('Change').removeAttr('disabled');
+                        $('.detail-row-' + lineItemId).find('.preview-new-image').append(response.imageHtml);
+                        $('.detail-row-' + lineItemId).find('.new-image-file-input').val('');
                     }
                 }
-            }
+            },
+            error: function () {
+                bootbox.alert('Something went wrong while file uploading. Please try again.');
+            } 
         });
     }
 
     function format(d) {
         var imageHtml = '<div class="preview-image">' + d.v_image + '</div>';
-        var pdsHTml = '<div class="preview-psd">'+ d.v_psd_file +'</div>';
+        var psdHTml = '<div class="preview-psd">' + d.v_psd_file + '</div>';
+        var newImageHtml = '<div class="preview-new-image">' + d.v_new_image + '</div>';
+        var newPsdHtml = '<div class="preview-new-psd">'+ d.v_new_psd_file +'</div>';
         var designNote =  d.designer_note;
         
         if (d.user_type == 'Admin' || d.user_type == 'Designer' || d.user_type == 'Manager') {
-            imageHtml = '<button class="btn btn-sm blue-madison image-upload-button">Upload</button><input type="file" class="image-file-input" style="display: none;" multiple/> <div class="preview-image">' + d.v_image + '</div>';
-            pdsHTml = '<button class="btn btn-sm blue-madison psd-upload-button">Upload</button><input type="file" class="psd-file-input" style="display: none;" multiple/> <div class="preview-psd">' + d.v_psd_file + '</div>';
-            designNote = '<input type="text" name="v_designer_note" class="form-control input-sm designer-note" id="designer_note_'+d.id+'" rel="'+d.id+'" placeholder="Designer Note" value="'+d.designer_note+'" maxlength="500">';
+            imageHtml = '<div style="border-right: 1px solid #ddd;"><button class="btn btn-sm blue-madison image-upload-button">Upload</button><input type="file" class="image-file-input" style="display: none;" multiple/> <div class="preview-image">' + d.v_image + '</div></div>';
+            
+            newImageHtml = '<button class="btn btn-sm blue-madison new-image-upload-button">Upload</button><input type="file" class="new-image-file-input" style="display: none;" multiple/> <div class="preview-new-image">' + d.v_new_image + '</div>';
+
+            psdHTml = '<div style="border-right: 1px solid #ddd;"><button class="btn btn-sm blue-madison psd-upload-button">Upload</button><input type="file" class="psd-file-input" style="display: none;" multiple/> <div class="preview-psd">' + d.v_psd_file + '</div></div>';
+
+            newPsdHtml = '<button class="btn btn-sm blue-madison new-psd-upload-button">Upload</button><input type="file" class="new-psd-file-input" style="display: none;" multiple/> <div class="preview-new-psd">' + d.v_new_psd_file + '</div>';
+
+            designNote = '<input type="text" name="v_designer_note" class="form-control input-sm designer-note" id="designer_note_' + d.id + '" rel="' + d.id + '" placeholder="Designer Note" value="' + d.designer_note + '" maxlength="500" style="width: 50%">';
         }
 
-        return '<table class="detail-row-table detail-row-' + d.id + '" cellpadding="5" cellspacing="0" border="0" style="width: 50%; padding-left:50px;" >' +
+        return '<table class="detail-row-table detail-row-' + d.id + '" cellpadding="5" cellspacing="0" border="0" style="width: 100%; padding-left:50px;" >' +
             '<tr>' +
                 '<td><strong>Text: </strong></td>' +
-                '<td>' + d.text + '</td>' +
+                '<td colspan="3">' + d.text + '</td>' +                
             '</tr>' +
             '<tr>' +
-                '<td width="110px"><strong>Designer Note: </strong></td>' +
-                '<td>' + designNote + '</td>' +
+                '<td><strong>Designer Note: </strong></td>' +
+                '<td  colspan="3">' + designNote + '</td>' +                
             '</tr>' +
-            '<tr class="file-drag-div" rel="' + d.id + '" rel1="Image">' +
-                '<td ><strong>Image: </strong></td>' +
-                '<td>' +imageHtml+ '</td>'+
+            '<tr >' +
+                '<td class="file-drag-div" rel="' + d.id + '" rel1="Image" width="11%"><strong>Images: </strong></td>' +
+                '<td class="file-drag-div" rel="' + d.id + '" rel1="Image" width="39%">' + imageHtml + '</td>' +
+                '<td width="11%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage"><strong>New Images</strong></td>' +
+                '<td width="39%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage">' + newImageHtml + '</td>' +
             '</tr>' +
-            '<tr class="file-drag-div file-drag-div1" rel="' + d.id + '"  rel1="PSD">'+
-                '<td><strong>PSD: </strong></td>'+
-                '<td>'+pdsHTml+'</td>'+
+            '<tr>'+
+                '<td class="file-drag-div" rel="' + d.id + '"  rel1="PSD"><strong>PSD: </strong></td>'+
+                '<td class="file-drag-div" rel="' + d.id + '"  rel1="PSD">' + psdHTml + '</td>' +
+                '<td class="file-drag-div" rel="' + d.id + '"  rel1="NEwPSD"><strong>New PSD</strong></td>' +
+                '<td class="file-drag-div" rel="' + d.id + '"  rel1="NewPSD">' + newPsdHtml + '</td>' +
             '</tr>' + 
             '</table>';
     }

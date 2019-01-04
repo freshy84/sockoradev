@@ -89,17 +89,29 @@ class OrdersController extends Controller {
                 $images = json_decode($val['v_image'], true);
                 $images = is_array($images) ? $images : [];
 
+                foreach ($images as $k => $value) {
+                    if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$value) && $value != '') {
+                        $v_image .= '<a class="mr5" data-fancybox="line-item-images'.$val['id'].'" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$value.'" alt=""></a>';
+                    }
+                }
+            }
+            $returnData[$key]['v_image'] = $v_image;
+
+            $new_image = '';
+            if($val['v_new_image'] != '' && $val['v_new_image'] !== null) {
+                $images = json_decode($val['v_new_image'], true);
+                $images = is_array($images) ? $images : [];
+
                 foreach ($images as $value) {
                     if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$value) && $value != '') {
-                        $v_image .= '<a class="fancybox mr5" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$value.'" alt=""></a>';
+                        $new_image .= '<a class="mr5" data-fancybox="line-item-new-images'.$val['id'].'" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$value.'" alt=""></a>';
                     }
                 }
             }
 
-            $returnData[$key]['v_image'] = $v_image;
+            $returnData[$key]['v_new_image'] = $new_image;
 
-            $v_psd_file = '';
-            
+            $v_psd_file = '';            
             if($val['v_psd_file'] != '' && $val['v_psd_file'] !== null) {
                 $psd_files = json_decode($val['v_psd_file'], true);
                 $psd_files = is_array($psd_files) ? $psd_files : [];
@@ -111,8 +123,22 @@ class OrdersController extends Controller {
                     }          
                 }
             }
-
             $returnData[$key]['v_psd_file'] = ltrim($v_psd_file, ',');
+
+            $new_psd_file = '';            
+            if($val['v_new_psd_file'] != '' && $val['v_new_psd_file'] !== null) {
+                $psd_files = json_decode($val['v_new_psd_file'], true);
+                $psd_files = is_array($psd_files) ? $psd_files : [];
+                
+                foreach($psd_files as $value) {                    
+                     if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$value) && $value != '') {
+                        $imageName1 =  str_replace(explode('_', $value)[0].'_', '', $value);
+                        $new_psd_file .= ', <a class="" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'" download="'.$imageName1.'">'.$imageName1.'</a>';
+                    }          
+                }
+            }
+
+            $returnData[$key]['v_new_psd_file'] = ltrim($new_psd_file, ',');
             
             $image = '';
             $text = '';
@@ -125,7 +151,7 @@ class OrdersController extends Controller {
                 } else if($v1['name'] == 'Text' || $v1['name'] == 'text') {
                     $text = $v1['value'];
                 } else if(preg_match("/image/i", $v1['name'])) {
-                   $image .= '<a class="mr5 fancybox" data-fancybox="images" rel="gallery'.$v1['i_lineitem_id'].'" href="'.$v1['value'].'" data-fancybox-group="gallery" data-caption="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
+                   $image .= '<a class="mr5" data-fancybox="gallery'.$v1['i_lineitem_id'].'" href="'.$v1['value'].'" data-fancybox-group="gallery" data-caption="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
 
                     // $image .= '<a class="mr5 fancybox" href="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/'.$v1['v_image_thumb'].'" data-fancybox-group="gallery" title="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
                 } else if(preg_match("/Number of Faces/i", $v1['name'])) {
@@ -198,45 +224,46 @@ class OrdersController extends Controller {
            
             $line_item = LineItems::where('id', $data['lineItemId'])->first();
             if($line_item) {
-                if($data['uploadType'] == 'Image') {
-                    $line_item_path = LINE_ITEM_FILES.$line_item->id;
-                    if (!file_exists($line_item_path)) {                                           
-                        mkdir($line_item_path.'/thumb', 0777, true);
-                    }
-                    
+                $line_item_path = LINE_ITEM_FILES.$line_item->id;
+                if (!file_exists($line_item_path)) {                                           
+                    mkdir($line_item_path, 0777, true);
+                    mkdir($line_item_path.'/thumb', 0777, true);
+                }
+                
+                if($data['uploadType'] == 'Image' || $data['uploadType'] == 'NewImage') {
                     $v_images = [];
                     $imageHtml = '';
-
+                    $aclass = 'line-item-'.($data['uploadType'] == 'NewImage' ? 'new-' : '').'images'.$line_item->id;
                     foreach($files as $key => $file) {
                         $name = time().$key.'_'.$file->getClientOriginalName();
                         $file->move($line_item_path.'/', $name);
                         $imageName = $this->makeThumbnail($name,  $line_item_path.'/', $line_item_path.'/thumb/', 40, 40);                        
                         $v_images[] = $imageName;
 
-                        $imageHtml .= '<a class="fancybox mr5" href="'.SITE_URL.$line_item_path.'/'. $imageName.'"><img class="line-item-img" src="'.SITE_URL.$line_item_path.'/thumb/'. $imageName.'" alt=""></a>';
+                        $imageHtml .= '<a class="mr5" data-fancybox="'.$aclass.'" href="'.SITE_URL.$line_item_path.'/'. $imageName.'"><img class="line-item-img" src="'.SITE_URL.$line_item_path.'/thumb/'. $imageName.'" alt=""></a>';
                     }
                     
                     $oldImages = [];
-                    
-                    if($line_item->v_image != null) {
-                        $oldImages = json_decode($line_item->v_image, true);
+                    if($data['uploadType'] == 'Image' ) {
+                        if($line_item->v_image != null) {
+                            $oldImages = json_decode($line_item->v_image, true);
+                        }
+                        if(!is_array($oldImages)) { $oldImages = []; }
+                        $v_images = array_merge($oldImages, $v_images);
+                        $line_item->v_image = json_encode($v_images);
+                    } else {
+                        if($line_item->v_new_image != null) {
+                            $oldImages = json_decode($line_item->v_new_image, true);
+                        }
+                        if(!is_array($oldImages)) { $oldImages = []; }
+                        $v_images = array_merge($oldImages, $v_images);
+                        $line_item->v_new_image = json_encode($v_images);
                     }
-
-                    if(!is_array($oldImages)) {
-                        $oldImages = [];
-                    }
-
-                    $v_images = array_merge($oldImages, $v_images);
-                    $line_item->v_image = json_encode($v_images);
                     $line_item->save();
 
                     return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  $imageHtml]);
 
-                } else {
-                    $line_item_path = LINE_ITEM_FILES.$line_item->id;
-                    if (!file_exists($line_item_path)) {                                           
-                        mkdir($line_item_path.'/thumb', 0777, true);
-                    }
+                } else {                   
                     $imageHtml = '';
                     $v_images = [];
 
@@ -250,20 +277,23 @@ class OrdersController extends Controller {
                     }
 
                     $oldFiles = [];
-                    
-                    if($line_item->v_psd_file != null) {
-                        $oldFiles = json_decode($line_item->v_psd_file, true);
-                    }
-                    
-                    if(!is_array($oldFiles)) {
-                        $oldFiles = [];
-                    }
+                    if($data['uploadType'] == 'PSD' ) {
+                        if($line_item->v_psd_file != null) {
+                            $oldFiles = json_decode($line_item->v_psd_file, true);
+                        } else { $imageHtml = ltrim($imageHtml, ', '); }
+                        if(!is_array($oldFiles)) { $oldFiles = []; $imageHtml = ltrim($imageHtml, ', ');}
+                        $v_images = array_merge($oldFiles, $v_images);
+                        $line_item->v_psd_file = json_encode($v_images);
 
-                    $v_images = array_merge($oldFiles, $v_images);
-                    $line_item->v_psd_file = json_encode($v_images);
-                    $line_item->save();
-
-                    $imageHtml = ltrim($imageHtml, ', ');
+                    } else {
+                        if($line_item->v_new_psd_file != null) {
+                            $oldFiles = json_decode($line_item->v_new_psd_file, true);
+                        } else { $imageHtml = ltrim($imageHtml, ', '); }
+                        if(!is_array($oldFiles)) { $oldFiles = []; $imageHtml = ltrim($imageHtml, ', ');}
+                        $v_images = array_merge($oldFiles, $v_images);
+                        $line_item->v_new_psd_file = json_encode($v_images);
+                    }
+                    $line_item->save();                   
 
                     return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  $imageHtml]);
                 }

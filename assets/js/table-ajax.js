@@ -319,13 +319,13 @@ var project_array, TableAjax = function (t) {
         formData.append('uploadType', uploadType);
 
         if (uploadType == 'PSD') {
-            $('.detail-row-' + lineItemId).find('.psd-upload-button').text('Uploading...').attr('disabled');           
+            $('.detail-row-' + lineItemId).find('.psd-upload-button').text('Uploading...').attr('disabled', 'disabled');           
         } else if (uploadType == 'NewPSD') {
-            $('.detail-row-' + lineItemId).find('.new-psd-upload-button').text('Uploading...').attr('disabled');
+            $('.detail-row-' + lineItemId).find('.new-psd-upload-button').text('Uploading...').attr('disabled', 'disabled');
         } else if (uploadType == 'NewImage') {
-            $('.detail-row-' + lineItemId).find('.new-image-upload-button').text('Uploading...').attr('disabled');              
+            $('.detail-row-' + lineItemId).find('.new-image-upload-button').text('Uploading...').attr('disabled', 'disabled');
         } else {
-            $('.detail-row-' + lineItemId).find('.image-upload-button').text('Uploading...').attr('disabled');
+            $('.detail-row-' + lineItemId).find('.image-upload-button').text('Uploading...').attr('disabled', 'disabled');
         }
         
         $.ajax({
@@ -393,13 +393,13 @@ var project_array, TableAjax = function (t) {
             '<tr >' +
                 '<td class="file-drag-div" rel="' + d.id + '" rel1="Image" width="11%"><strong>Images: </strong></td>' +
                 '<td class="file-drag-div" rel="' + d.id + '" rel1="Image" width="39%">' + imageHtml + '</td>' +
-                '<td width="11%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage"><strong>New Images</strong></td>' +
+                '<td width="11%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage"><strong>New Images:</strong></td>' +
                 '<td width="39%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage">' + newImageHtml + '</td>' +
             '</tr>' +
             '<tr>'+
                 '<td class="file-drag-div" rel="' + d.id + '"  rel1="PSD"><strong>PSD: </strong></td>'+
                 '<td class="file-drag-div" rel="' + d.id + '"  rel1="PSD">' + psdHTml + '</td>' +
-                '<td class="file-drag-div" rel="' + d.id + '"  rel1="NEwPSD"><strong>New PSD</strong></td>' +
+                '<td class="file-drag-div" rel="' + d.id + '"  rel1="NEwPSD"><strong>New PSD:</strong></td>' +
                 '<td class="file-drag-div" rel="' + d.id + '"  rel1="NewPSD">' + newPsdHtml + '</td>' +
             '</tr>' + 
             '</table>';

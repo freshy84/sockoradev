@@ -32,7 +32,7 @@
         <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}plugins/fancybox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" />
 
         <!-- END THEME STYLES -->
-        <link rel="shortcut icon" href="{{ ASSET_URL }}favicon.ico"/>
+        <link rel="shortcut icon" href="{{ SITE_URL }}favicon.png"/>
 
         <style>
             textarea:focus::-webkit-input-placeholder, input:focus::-webkit-input-placeholder  { opacity: 0;}

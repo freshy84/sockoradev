@@ -47,7 +47,7 @@
         <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}plugins/fancybox/dist/jquery.fancybox.min.css{{CSS_VERSION}}" media="screen" />
         
         <!-- END THEME STYLES -->
-        <link rel="shortcut icon" href="{{ ASSET_URL }}favicon.ico"/>
+        <link rel="shortcut icon" href="{{ SITE_URL }}favicon.png"/>
         <script src="{{ ASSET_URL }}plugins/jquery.min.js{{JS_VERSION}}" type="text/javascript"></script>
         <script src="{{ ASSET_URL }}plugins/jquery-migrate.min.js{{JS_VERSION}}" type="text/javascript"></script>
         <script src="{{ ASSET_URL }}plugins/jquery-ui/jquery-ui-1.10.3.custom.min.js{{JS_VERSION}}" type="text/javascript"></script>

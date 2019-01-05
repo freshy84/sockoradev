@@ -24,17 +24,22 @@ class WebhookController extends Controller {
 
             if($products->body->products) {
                 foreach($products->body->products as $product) {
+                    $new = Products::where('product_id', $product->id)->first();
+                    if(!$new) {
+                        $new = new Products;
+                    }
+
                     $images = [];
                     foreach ($product->images as $image) {
                         $images[] = ['id' => $image->id, 'src' => $image->src];
-                    }
-                    
-                    $new = new Products;
+                    }                   
+                   
                     $new->product_id = $product->id;
                     $new->title = $product->title;
                     $new->body_html = $product->body_html;
                     $new->vendor = $product->vendor;
                     $new->tags = $product->tags;
+                    $new->product_type = $product->product_type == '' || $product->product_type == 'null' ? null : $product->product_type;
                     $new->images = json_encode($images);
                     $new->image = isset($product->image->src) ? $product->image->src : null;
                     
@@ -65,13 +70,13 @@ class WebhookController extends Controller {
                     $new = Orders::where('order_id', $order->id)->first();
                     if(!$new) {
                         $new = new Orders;                        
-                    }                                   
+                    }                                  
                    
                     $new->order_id = $order->id;
                     $new->email = $order->email;
                     $new->name = $order->name;
                     $new->order_number = $order->order_number;
-                    $new->number = $order->number;
+                    $new->number = $order->number;                    
                     $new->note = $order->note;
                     $new->token = $order->token;
                     $new->total_price = $order->total_price;
@@ -97,6 +102,7 @@ class WebhookController extends Controller {
                             $new1->title = $line_item->title;
                             $new1->name = $line_item->name;
                             $new1->quantity = $line_item->quantity;
+                            $new1->product_id = $line_item->product_id;
                             $new1->price = $line_item->price;
                             $new1->total_discount = $line_item->total_discount;
                             
@@ -118,7 +124,7 @@ class WebhookController extends Controller {
                                         if (!file_exists($line_item_path)) {                                           
                                             mkdir($line_item_path.'/thumb', 0777, true);
                                         }
-                                        $imageName = $this->downloadImage($property->value);                                        
+                                        $imageName = $this->downloadImage($line_item_path.'/', $property->value);                                        
                                         $imageName = $this->makeThumbnail($imageName,  $line_item_path.'/', $line_item_path.'/thumb/', 30, 30);
 
                                         if($imageName != '') {
@@ -152,6 +158,7 @@ class WebhookController extends Controller {
             $order->email = $data['email'];
             $order->name = $data['name'];
             $order->order_number = $data['order_number'];
+            $order->product_id = $data['product_id'];
             $order->number = $data['number'];
             $order->note = $data['note'];
             $order->token = $data['token'];
@@ -179,6 +186,7 @@ class WebhookController extends Controller {
                     $line_item->title = $value['title'];
                     $line_item->name = $value['name'];
                     $line_item->quantity = $value['quantity'];
+                    $line_item->product_id = $value['product_id'];
                     $line_item->price = $value['price'];
                     $line_item->total_discount = $value['total_discount'];
                     
@@ -201,7 +209,7 @@ class WebhookController extends Controller {
                                     mkdir($line_item_path.'/thumb', 0777, true);
                                 }
 
-                                $imageName = $this->downloadImage($property['value']);   
+                                $imageName = $this->downloadImage($line_item_path.'/', $property['value']);   
                                 $imageName = $this->makeThumbnail($imageName,  $line_item_path.'/', $line_item_path.'/thumb/', 30, 30);
                                 if($imageName != '') {
                                     $new2->v_image_thumb = $imageName;
@@ -237,7 +245,9 @@ class WebhookController extends Controller {
             $product->body_html = $data['body_html'];
             $product->vendor = $data['vendor'];
             $product->tags = $data['tags'];
+            $product->product_type = $data['product_type'] == '' ? null : $data['product_type'];
             $product->images = json_encode($images);
+            
             $product->image = isset($data['image']['src']) ? $data['image']['src'] : null;        
             $product->published_at = strtotime($data['published_at']) > 0 ? date('Y-m-d H:i:s', strtotime($data['published_at'])) : null;
             $product->created_at = strtotime($data['created_at']) > 0 ? date('Y-m-d H:i:s', strtotime($data['created_at'])) : null;

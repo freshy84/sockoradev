@@ -615,4 +615,13 @@ table.detail-row-table tbody td{border-top: 1px solid #ddd; padding: 8px;}
 .table tr.heading > th { vertical-align: middle;}
 .line-item-status{height: 28px;}
 .preview-image, .preview-new-image {display: inline-block;}
-.preview-psd, .preview-new-psd{vertical-align: middle; display: inline-block;}
+.preview-image  .image-item, .preview-new-image .image-item{vertical-align: middle; display: inline-block;}
+.preview-image .image-item .delete-image, .preview-new-image .image-item .delete-image{text-align: center; color: red; margin: 0 auto; display: block;}
+.preview-psd, .preview-new-psd{vertical-align: middle; display: inline;}
+.preview-psd .delete-psd, .preview-new-psd .delete-psd{color: red;}
+
+.preview-image  .image-item .fancy-image, .preview-new-image .image-item .fancy-image {display: block;}
+
+.preview-psd .psd-file-list:after, .preview-new-psd .psd-file-list:after{content: ', ';}
+.preview-psd .psd-file-list:last-child:after, .preview-new-psd .psd-file-list:last-child:after{content: '' !important;}
+

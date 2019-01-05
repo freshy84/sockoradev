@@ -39,6 +39,8 @@
 									</th>
 									<th width="10%">
 										Quantity
+									</th><th width="10%">
+										Product Type
 									</th>
 									<th width="10%">
 										Status
@@ -64,6 +66,9 @@
 									<td rowspan="1" colspan="1">
 										<input type="text" name="i_quantity_min" class="form-control form-filter input-sm" placeholder="Min"/>
 										<input type="text" name="i_quantity_max" class="form-control form-filter input-sm" placeholder="Max"  style="margin-top: 5px;"/>
+									</td>
+									<td rowspan="1" colspan="1">
+										<input type="text" name="product_type" class="form-control form-filter input-sm" placeholder="Product Type"/>
 									</td>
 									<td rowspan="1" colspan="1">										
 										<select name="e_status" class="form-control form-filter input-sm">

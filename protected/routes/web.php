@@ -48,5 +48,6 @@ Route::group(array('middleware' => 'auth'), function() {
     Route::post('orders/change-status', 'OrdersController@changeLineItemStatus');
     Route::post('orders/upload-lineitem-image', 'OrdersController@uploadLineitemIimage');
     Route::post('orders/update-designer-note', 'OrdersController@updateDesignerNote');
+    Route::post('orders/delete-lineitem-image', 'OrdersController@deleteLineitemImage');
     
 });

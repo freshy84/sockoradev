@@ -38,7 +38,7 @@ class Controller extends BaseController
         return $tmpFile;
     }
     
-    public function downloadImage($url) {
+    public function downloadImage($source_folder, $url) {
         $filename = basename($url);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);

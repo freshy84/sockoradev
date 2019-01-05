@@ -26,6 +26,7 @@ var project_array, TableAjax = function (t) {
                         { "data": "images" },
                         { "data": "no_of_faces" },
                         { "data": "quantity" },
+                        { "data": "product_type" },
                         { "data": "line_item_status_html" },                        
                     ]
             }
@@ -260,9 +261,7 @@ var project_array, TableAjax = function (t) {
                         fileSize += file.size;
 
                     });
-
-                    setTimeout(() => {
-                        
+                    setTimeout(() => {                        
                         if ((fileSize / 1024) <= 10240) {
                             if (status) {
                                 uploadLineItemFile(files, lineItemId, uploadType);
@@ -306,6 +305,45 @@ var project_array, TableAjax = function (t) {
                         bootbox.alert("You can only upload a maximum 10M at a time.");
                     } 
                 }, 500);
+            }
+
+        }), e.getTableWrapper().on('click', '.preview-image .delete-image, .preview-new-image .delete-image, .preview-psd .delete-psd, .preview-new-psd .delete-psd', function (e) {
+            var $this = $(e.target);
+            var lineItemId = $(this).closest('td').attr('rel');
+            var uploadType = $(this).closest('td').attr('rel1');
+            var filename = $(this).attr('rel');
+            var formData = new FormData();      
+            formData.append('lineItemId', lineItemId);
+            formData.append('uploadType', uploadType);
+            formData.append('filename', filename);
+            
+            if (lineItemId !== undefined && lineItemId != '' && uploadType != '') {
+                $.ajax({
+                    url: SITE_URL + 'orders/delete-lineitem-image',
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.status == 'TRUE') {
+                            if (uploadType == 'Image' || uploadType == 'NewImage') {
+                                $this.closest('.image-item').fadeOut("slow", function () {
+                                    $this.closest('.image-item').remove();
+                                });
+                            } else {
+                                $this.closest('.psd-file-list').fadeOut("slow", function () {
+                                    $this.closest('.psd-file-list').remove();
+                                });
+                            }
+                        } else {
+                            bootbox.alert(response.message);    
+                        }
+                    },
+                    error: function () {
+                        bootbox.alert('Something went wrong while deleting file. Please try again.');
+                    } 
+                });
             }
 
         })
@@ -374,18 +412,18 @@ var project_array, TableAjax = function (t) {
         var newPsdHtml = '';
         var rightBorder = '';
 
-        if (d.line_item_status == 'Redo' && (d.user_type == 'Admin' || d.user_type == 'Designer' || d.user_type == 'Manager')) {            
+        if (d.line_item_status == 'Redo' && (d.user_type == 'Admin' || d.user_type == 'Designer' || d.user_type == 'Manager')) {
             newImageHtml += '<td width="11%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage"><strong>New Images:</strong></td><td width="39%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage"><button class="btn btn-sm blue-madison new-image-upload-button">Upload</button><input type="file" class="new-image-file-input" style="display: none;" multiple/> <div class="preview-new-image">' + d.v_new_image + '</div></td>';
 
             newPsdHtml += '<td class="file-drag-div" rel="' + d.id + '"  rel1="NEwPSD"><strong>New PSD:</strong></td><td class="file-drag-div" rel="' + d.id + '"  rel1="NewPSD"><button class="btn btn-sm blue-madison new-psd-upload-button">Upload</button><input type="file" class="new-psd-file-input" style="display: none;" multiple/> <div class="preview-new-psd">' + d.v_new_psd_file + '</div></td>';
             rightBorder = 'border-right: 1px solid #ddd;'
-        }
-
-        if (d.line_item_status != 'Redo') {
+            
+        } else {
             if (d.v_new_image != '') {
                 newImageHtml += '<td width="11%"><strong>New Images:</strong></td><td width="39%" ><div class="preview-new-image">' + d.v_new_image + '</div><td>';
                 rightBorder = 'border-right: 1px solid #ddd;'
             }
+        
             if (d.v_new_psd_file != '') {
                 newPsdHtml += '<td ><strong>New PSD:</strong></td><td class="file-drag-div"><div class="preview-new-psd">' + d.v_new_psd_file + '</div></td>';
                 rightBorder = 'border-right: 1px solid #ddd;'

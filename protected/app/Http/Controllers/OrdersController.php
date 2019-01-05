@@ -15,11 +15,12 @@ class OrdersController extends Controller {
         // DB::enableQueryLog();
         $authUser = auth()->guard('admin')->user();
         $data = $request->all();
-        $sortColumn = array('order_name', 'lineitems.title', 'id', 'id', 'id', 'id', 'quantity', 'e_status');
+        $sortColumn = array('id', 'order_name', 'lineitems.title', 'id', 'id', 'quantity', 'product_type', 'e_status');
         $query = new LineItems;
         $query = $query->with('properties');
         $query = $query->join('orders', 'orders.id', 'lineitems.i_order_id');
-        
+        $query = $query->join('products', 'products.product_id', 'lineitems.product_id');
+
         if(isset($data['v_order_id']) && $data['v_order_id'] != '') {
             $query = $query->where('orders.order_number', 'LIKE',  '%'. str_replace('#', '', $data['v_order_id']). '%');
         }
@@ -28,6 +29,9 @@ class OrdersController extends Controller {
         }
         if(isset($data['v_line_item']) && $data['v_line_item'] != '') {
             $query = $query->where('title', 'LIKE', '%'. $data['v_line_item']. '%');
+        }
+        if(isset($data['product_type']) && $data['product_type'] != '') {
+            $query = $query->where('product_type', 'LIKE', '%'. $data['product_type']. '%');
         } 
         if(isset($data['v_text']) && $data['v_text'] != '') {
             $query = $query->whereHas('properties', function($q1) use ($data) {
@@ -51,7 +55,7 @@ class OrdersController extends Controller {
             $query = $query->where('quantity', '<=', $data['i_quantity_max']);
         } 
 
-        $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name');
+        $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name','products.product_type as product_type');
         $rec_per_page = REC_PER_PAGE;
         if(isset($data['length'])){
             if($data['length'] == '-1') {
@@ -63,6 +67,7 @@ class OrdersController extends Controller {
 
         $sort_order = $data['order']['0']['dir'];
         $order_field = $sortColumn[$data['order']['0']['column']];
+      
         if($order_field == 'order_name') {
             $query = $query->orderBy('order_name', $sort_order)->orderBy('title', 'asc');
         }
@@ -72,8 +77,7 @@ class OrdersController extends Controller {
 		    $query = $query->orderBy('order_name', 'desc')->orderBy('id', 'desc');
 		}
         $orders = $query->paginate($rec_per_page);
-        /* pr(DB::getQueryLog());
-        exit; */
+        // pr(DB::getQueryLog()); exit;
         $arrOrders = $orders->toArray();
         
         $returnData = [];
@@ -83,6 +87,7 @@ class OrdersController extends Controller {
             $returnData[$key]['id'] = $val['id'];
             $returnData[$key]['order_id'] = $val['order_name'];
             $returnData[$key]['line_item_name'] = $val['title'];
+            $returnData[$key]['product_type'] = $val['product_type'];
 
             $v_image = '';
             if($val['v_image'] != '' && $val['v_image'] !== null) {
@@ -91,7 +96,13 @@ class OrdersController extends Controller {
 
                 foreach ($images as $k => $value) {
                     if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$value) && $value != '') {
-                        $v_image .= '<a class="mr5" data-fancybox="line-item-images'.$val['id'].'" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$value.'" alt=""></a>';
+                        $deleteHtml = '';
+
+                        if(in_array($authUser->e_user_type, ['Admin', 'Manager'])) {
+                            $deleteHtml = '<a href="javascript:;" class="delete-image" rel="'.$value.'" title="Delete"><i class="fa fa-times" aria-hidden="true"></i></a>';
+                        }
+                        
+                        $v_image .= '<div class="mr5 image-item" style=""><a class="fancy-image" data-fancybox="line-item-images'.$val['id'].'" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$value.'" alt=""></a>'. $deleteHtml .'</div>';
                     }
                 }
             }
@@ -101,10 +112,15 @@ class OrdersController extends Controller {
             if($val['v_new_image'] != '' && $val['v_new_image'] !== null) {
                 $images = json_decode($val['v_new_image'], true);
                 $images = is_array($images) ? $images : [];
-
+                
                 foreach ($images as $value) {
                     if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$value) && $value != '') {
-                        $new_image .= '<a class="mr5" data-fancybox="line-item-new-images'.$val['id'].'" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$value.'" alt=""></a>';
+                        $deleteHtml = '';
+
+                        if(in_array($authUser->e_user_type, ['Admin', 'Manager'])) {
+                            $deleteHtml = '<a href="javascript:;" class="delete-image" rel="'.$value.'" title="Delete"><i class="fa fa-times" aria-hidden="true"></i></a>';
+                        }
+                        $new_image .= '<div class="mr5 image-item"><a class="fancy-image" data-fancybox="line-item-new-images'.$val['id'].'" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/thumb/'.$value.'" alt="">'.$deleteHtml.'</a></div>';
                     }
                 }
             }
@@ -118,22 +134,32 @@ class OrdersController extends Controller {
                 
                 foreach($psd_files as $value) {                    
                      if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$value) && $value != '') {
+                        $deleteHtml = '';
+                        if(in_array($authUser->e_user_type, ['Admin', 'Manager'])) {
+                            $deleteHtml = ' ( <a href="javascript:;" class="delete-psd" rel="'.$value.'" title="Delete"><i class="fa fa-times" aria-hidden="true"></i></a> )';
+                        }
+
                         $imageName1 =  str_replace(explode('_', $value)[0].'_', '', $value);
-                        $v_psd_file .= ', <a class="" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'" download="'.$imageName1.'">'.$imageName1.'</a>';
+                        $v_psd_file .= '<span class="psd-file-list"><a class="" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'" download="'.$imageName1.'">'.$imageName1.'</a>'. $deleteHtml.'</span>';                       
                     }          
                 }
             }
-            $returnData[$key]['v_psd_file'] = ltrim($v_psd_file, ',');
+            $returnData[$key]['v_psd_file'] = $v_psd_file;
 
             $new_psd_file = '';            
             if($val['v_new_psd_file'] != '' && $val['v_new_psd_file'] !== null) {
                 $psd_files = json_decode($val['v_new_psd_file'], true);
                 $psd_files = is_array($psd_files) ? $psd_files : [];
                 
-                foreach($psd_files as $value) {                    
+                foreach($psd_files as $value) {
                      if(file_exists(LINE_ITEM_FILES.$val['id'].'/'.$value) && $value != '') {
+                        $deleteHtml = '';
+                        if(in_array($authUser->e_user_type, ['Admin', 'Manager'])) {
+                            $deleteHtml = ' ( <a href="javascript:;" class="delete-psd" rel="'.$value.'" title="Delete"><i class="fa fa-times" aria-hidden="true"></i></a> )';
+                        }
+
                         $imageName1 =  str_replace(explode('_', $value)[0].'_', '', $value);
-                        $new_psd_file .= ', <a class="" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'" download="'.$imageName1.'">'.$imageName1.'</a>';
+                        $new_psd_file .= '<span class="psd-file-list"><a class="" href="'.SITE_URL.LINE_ITEM_FILES.$val['id'].'/'.$value.'" download="'.$imageName1.'">'.$imageName1.'</a>'. $deleteHtml.'</span>';
                     }          
                 }
             }
@@ -218,6 +244,7 @@ class OrdersController extends Controller {
         }
     public function uploadLineitemIimage(Request $request) {
         $data = $request->all();
+        $authUser = auth()->guard('admin')->user();
         if(isset($data['files']) && isset($data['lineItemId']) && isset($data['uploadType'])) {
             $files = $data['files'];
            
@@ -244,8 +271,13 @@ class OrdersController extends Controller {
                         $file->move($line_item_path.'/', $name);
                         $imageName = $this->makeThumbnail($name,  $line_item_path.'/', $line_item_path.'/thumb/', 40, 40);                        
                         $v_images[] = $imageName;
+                        $deleteHtml = '';
 
-                        $imageHtml .= '<a class="mr5" data-fancybox="'.$aclass.'" href="'.SITE_URL.$line_item_path.'/'. $imageName.'"><img class="line-item-img" src="'.SITE_URL.$line_item_path.'/thumb/'. $imageName.'" alt=""></a>';
+                        if(in_array($authUser->e_user_type, ['Admin', 'Manager'])) {
+                            $deleteHtml = '<a href="javascript:;" class="delete-image" rel="'.$imageName.'" title="Delete"><i class="fa fa-times" aria-hidden="true"></i></a>';
+                        }
+
+                        $imageHtml .= '<div class="mr5 image-item" style=""> <a class="fancy-image" data-fancybox="'.$aclass.'" href="'.SITE_URL.$line_item_path.'/'. $imageName.'"><img class="line-item-img" src="'.SITE_URL.$line_item_path.'/thumb/'. $imageName.'" alt=""></a>'. $deleteHtml .'</div>';
                     }
                     
                     $oldImages = [];
@@ -268,7 +300,7 @@ class OrdersController extends Controller {
                     
                     return response()->json(['status' => 'TRUE', 'image' => SITE_URL.$line_item_path.'/'. $imageName, 'imageHtml' =>  $imageHtml]);
 
-                } else {                   
+                } else {
                     $imageHtml = '';
                     $v_images = [];
 
@@ -277,24 +309,29 @@ class OrdersController extends Controller {
                         $file->move($line_item_path.'/', $imageName);  
                         $imageName1 =  str_replace(explode('_', $imageName)[0].'_', '', $imageName);
                         $v_images[] = $imageName;
-
-                        $imageHtml .= ', <a class="" href="'.SITE_URL.$line_item_path.'/'. $imageName.'" download="'.$imageName1.'">'.$imageName1.'</a>';
+                        $deleteHtml = '';
+                        if(in_array($authUser->e_user_type, ['Admin', 'Manager'])) {
+                            $deleteHtml = ' ( <a href="javascript:;" class="delete-psd" rel="'.$imageName.'" title="Delete"><i class="fa fa-times" aria-hidden="true"></i></a> )';
+                        }
+                        $imageHtml .= '<span class="psd-file-list"><a class="" href="'.SITE_URL.$line_item_path.'/'. $imageName.'" download="'.$imageName1.'">'.$imageName1.'</a>'.$deleteHtml.'</span>';
                     }
 
                     $oldFiles = [];
                     if($data['uploadType'] == 'PSD' ) {
                         if($line_item->v_psd_file != null) {
                             $oldFiles = json_decode($line_item->v_psd_file, true);
-                        } else { $imageHtml = ltrim($imageHtml, ', '); }
-                        if(!is_array($oldFiles)) { $oldFiles = []; $imageHtml = ltrim($imageHtml, ', ');}
+                        }
+                        if(!is_array($oldFiles) || count($oldFiles) <= 0) { $oldFiles = []; $imageHtml = ltrim($imageHtml, ', ');}
+
                         $v_images = array_merge($oldFiles, $v_images);
                         $line_item->v_psd_file = json_encode($v_images);
 
                     } else {
-                        if($line_item->v_new_psd_file != null) {
+                        if($line_item->v_new_psd_file !== null) {
                             $oldFiles = json_decode($line_item->v_new_psd_file, true);
-                        } else { $imageHtml = ltrim($imageHtml, ', '); }
-                        if(!is_array($oldFiles)) { $oldFiles = []; $imageHtml = ltrim($imageHtml, ', ');}
+                        }
+
+                        if(!is_array($oldFiles)  || count($oldFiles) <= 0) { $oldFiles = []; $imageHtml = ltrim($imageHtml, ', ');}
                         $v_images = array_merge($oldFiles, $v_images);
                         $line_item->v_new_psd_file = json_encode($v_images);
                     }
@@ -305,6 +342,79 @@ class OrdersController extends Controller {
             }
         }
         return response()->json(['status' => 'TRUE']);
+    }
+
+    public function deleteLineitemImage(Request $request) {
+        $data = $request->all();
+        $authUser = auth()->guard('admin')->user();
+        if(in_array($authUser->e_user_type, ['Admin', 'Manager'])) {           
+            if(isset($data['filename']) && $data['filename'] != '' && isset($data['lineItemId']) && isset($data['uploadType']) && $data['uploadType'] != '') {
+                $line_item = LineItems::where('id', $data['lineItemId'])->first();
+                if($line_item) {
+                    if($data['uploadType'] == 'Image') {
+                        $images = $line_item->v_image;                    
+                        if($images !== null && $images != '') {
+                            $images = json_decode($images, true);
+                            $index = array_search($data['filename'], $images);
+                            if(isset($images[$index])) {
+                                unset($images[$index]);
+                                @unlink(LINE_ITEM_FILES.$line_item->id.'/'.$data['filename']);
+                                @unlink(LINE_ITEM_FILES.$line_item->id.'/thumb/'.$data['filename']);
+                                $images = array_values($images);
+                                $line_item->v_image = (count($images) > 0 ? json_encode($images) : null);
+                                $line_item->save();
+                                return response()->json(['status' => 'TRUE']);
+                            }
+                        }
+                    } else if($data['uploadType'] == 'NewImage') {
+                        $images = $line_item->v_new_image;
+                        if($images !== null && $images != '') {
+                            $images = json_decode($images, true);
+                            $index = array_search($data['filename'], $images);
+                            if(isset($images[$index])) {
+                                unset($images[$index]);
+                                unlink(LINE_ITEM_FILES.$line_item->id.'/'.$data['filename']);
+                                @unlink(LINE_ITEM_FILES.$line_item->id.'/thumb/'.$data['filename']);
+                                $images = array_values($images);
+                                $line_item->v_new_image = count($images) > 0 ? json_encode($images) : null;
+                                $line_item->save();
+                                return response()->json(['status' => 'TRUE']);
+                            }
+                        }
+                    } else if($data['uploadType'] == 'PSD') {
+                        $images = $line_item->v_psd_file;
+                        if($images !== null && $images != '') {
+                            $images = json_decode($images, true);
+                            $index = array_search($data['filename'], $images);
+                            if(isset($images[$index])) {
+                                unset($images[$index]);
+                                unlink(LINE_ITEM_FILES.$line_item->id.'/'.$data['filename']);
+                                $images = array_values($images);
+                                $line_item->v_psd_file = count($images) > 0 ? json_encode($images) : null;
+                                $line_item->save();
+                                return response()->json(['status' => 'TRUE']);
+                            }
+                        }
+                    } else if($data['uploadType'] == 'NewPSD') {
+                        $images = $line_item->v_new_psd_file;
+                        if($images !== null && $images != '') {
+                            $images = json_decode($images, true);
+                            $index = array_search($data['filename'], $images);
+                            if(isset($images[$index])) {
+                                unset($images[$index]);
+                                unlink(LINE_ITEM_FILES.$line_item->id.'/'.$data['filename']);
+                                $images = array_values($images);
+                                $line_item->v_new_psd_file = count($images) > 0 ? json_encode($images) : null;
+                                $line_item->save();
+                                return response()->json(['status' => 'TRUE']);
+                            }
+                        }
+                    }                
+                }            
+            }
+            return response()->json(['status' => 'FALSE', 'message' => 'Something went wrong while deleting file. Please try again.']);            
+        }
+        return response()->json(['status' => 'FALSE', 'message' => 'You are not authorise to delete this file.']);
     }
 
 }

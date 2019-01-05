@@ -15,5 +15,9 @@ class LineItems extends Model {
     public function order() {
         return $this->hasOne('App\Models\Orders', 'id', 'i_order_id');
     }
+
+    public function product() {
+        return $this->hasOne('App\Models\Products', 'product_id', 'product_id')->select('id', 'product_id', 'title', 'product_type');
+    }
 }
 ?>

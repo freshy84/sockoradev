@@ -35,9 +35,6 @@
 										Images
 									</th>									
 									<th class="no-sort" width="10%">
-										Color
-									</th width="10%">
-									<th class="no-sort" width="10%">
 										Faces
 									</th>
 									<th width="10%">
@@ -60,9 +57,7 @@
 									<td rowspan="1" colspan="1">
 										
 									</td>									
-									<td rowspan="1" colspan="1">
-										<input type="text" name="v_color" class="form-control form-filter input-sm" placeholder="Color"/>
-									</td>
+									
 									<td rowspan="1" colspan="1">
 										<input type="text" name="i_no_of_faces" class="form-control form-filter input-sm" placeholder="Faces"/>
 									</td>

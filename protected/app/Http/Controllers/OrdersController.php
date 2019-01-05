@@ -152,8 +152,6 @@ class OrdersController extends Controller {
                     $text = $v1['value'];
                 } else if(preg_match("/image/i", $v1['name'])) {
                    $image .= '<a class="mr5" data-fancybox="gallery'.$v1['i_lineitem_id'].'" href="'.$v1['value'].'" data-fancybox-group="gallery" data-caption="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
-
-                    // $image .= '<a class="mr5 fancybox" href="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/'.$v1['v_image_thumb'].'" data-fancybox-group="gallery" title="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
                 } else if(preg_match("/Number of Faces/i", $v1['name'])) {
                     $noOfFaces = $v1['value'];
                 }                
@@ -174,7 +172,8 @@ class OrdersController extends Controller {
             $returnData[$key]['color'] = $color;
             $returnData[$key]['no_of_faces'] = $noOfFaces;
             $returnData[$key]['quantity'] = $val['quantity'];
-            $returnData[$key]['line_item_status'] = $statusOption;
+            $returnData[$key]['line_item_status_html'] = $statusOption;
+            $returnData[$key]['line_item_status'] = $val['e_status'];
             $returnData[$key]['user_type'] = $authUser->e_user_type;
             $returnData[$key]['designer_note'] = $val['v_designer_note'] !== null ? $val['v_designer_note'] : '';
         }
@@ -228,6 +227,12 @@ class OrdersController extends Controller {
                 if (!file_exists($line_item_path)) {                                           
                     mkdir($line_item_path, 0777, true);
                     mkdir($line_item_path.'/thumb', 0777, true);
+                }
+
+                if($data['uploadType'] == 'NewImage' || $data['uploadType'] == 'NewPSD' ) {
+                    if($line_item['e_status'] != 'Redo') {
+                        return response()->json(['status' => 'FALSE', 'message' => 'Not allow to upload in '. $line_item['e_status'] . ' status.']);
+                    }
                 }
                 
                 if($data['uploadType'] == 'Image' || $data['uploadType'] == 'NewImage') {

@@ -24,10 +24,9 @@ var project_array, TableAjax = function (t) {
                         { "data": "order_id" },
                         { "data": "line_item_name" },
                         { "data": "images" },
-                        { "data": "color" },
                         { "data": "no_of_faces" },
                         { "data": "quantity" },
-                        { "data": "line_item_status" },                        
+                        { "data": "line_item_status_html" },                        
                     ]
             }
         }
@@ -143,26 +142,29 @@ var project_array, TableAjax = function (t) {
         }), e.getTableWrapper().on('change', ' tbody td .line-item-status', function () {
             var line_item_id = $(this).attr('rel');
             var status = $(this).val();
-
+            
+            var table = e.getDataTable();
+            var row = $(this).closest('tr')[0];
+            var d = table.row(row).data();
+            
             $.post(SITE_URL + 'orders/change-status', { line_item_id: line_item_id, status: status }, function (data) {
                 if ($.trim(data) == 'TRUE') {
-                    // $('.order-id-' + line_item_id).val(status);
+                    d.line_item_status = status;
+                    table
+                    .row(row)
+                    .data( d )
+                    .draw();
                 }
             });
 
         }), e.getTableWrapper().on('dragenter', '.file-drag-div', function (e) {
             e.preventDefault();
-            // $(this).css('border', '#39b311 2px dashed');
-            // $(this).css('background', '#f1ffef');
-
+            
         }), e.getTableWrapper().on('dragenter', '.psd-upload-button', function (e) {
             e.preventDefault();
-            // $(this).closest('tr').css('border', '#39b311 2px dashed');
-            // $(this).closest('tr').css('background', '#f1ffef');
-
+            
         }), e.getTableWrapper().on('dragover', '.file-drag-div', function (e) {
-            e.preventDefault();
-            // $('.file-drag-div').not(e).css('border', 'none').css('background', 'none');
+            e.preventDefault();            
 
         }), e.getTableWrapper().on('drop', '.file-drag-div', function (e) {
             e.preventDefault();
@@ -354,6 +356,8 @@ var project_array, TableAjax = function (t) {
                         $('.detail-row-' + lineItemId).find('.preview-new-image').append(response.imageHtml);
                         $('.detail-row-' + lineItemId).find('.new-image-file-input').val('');
                     }
+                } else {
+                    bootbox.alert(response.message);
                 }
             },
             error: function () {
@@ -364,21 +368,37 @@ var project_array, TableAjax = function (t) {
 
     function format(d) {
         var imageHtml = '<div class="preview-image">' + d.v_image + '</div>';
-        var psdHTml = '<div class="preview-psd">' + d.v_psd_file + '</div>';
-        var newImageHtml = '<div class="preview-new-image">' + d.v_new_image + '</div>';
-        var newPsdHtml = '<div class="preview-new-psd">'+ d.v_new_psd_file +'</div>';
+        var psdHTml = '<div class="preview-psd">' + d.v_psd_file + '</div>';      
         var designNote =  d.designer_note;
+        var newImageHtml = '';
+        var newPsdHtml = '';
+        var rightBorder = '';
+
+        if (d.line_item_status == 'Redo' && (d.user_type == 'Admin' || d.user_type == 'Designer' || d.user_type == 'Manager')) {            
+            newImageHtml += '<td width="11%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage"><strong>New Images:</strong></td><td width="39%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage"><button class="btn btn-sm blue-madison new-image-upload-button">Upload</button><input type="file" class="new-image-file-input" style="display: none;" multiple/> <div class="preview-new-image">' + d.v_new_image + '</div></td>';
+
+            newPsdHtml += '<td class="file-drag-div" rel="' + d.id + '"  rel1="NEwPSD"><strong>New PSD:</strong></td><td class="file-drag-div" rel="' + d.id + '"  rel1="NewPSD"><button class="btn btn-sm blue-madison new-psd-upload-button">Upload</button><input type="file" class="new-psd-file-input" style="display: none;" multiple/> <div class="preview-new-psd">' + d.v_new_psd_file + '</div></td>';
+            rightBorder = 'border-right: 1px solid #ddd;'
+        }
+
+        if (d.line_item_status != 'Redo') {
+            if (d.v_new_image != '') {
+                newImageHtml += '<td width="11%"><strong>New Images:</strong></td><td width="39%" ><div class="preview-new-image">' + d.v_new_image + '</div><td>';
+                rightBorder = 'border-right: 1px solid #ddd;'
+            }
+            if (d.v_new_psd_file != '') {
+                newPsdHtml += '<td ><strong>New PSD:</strong></td><td class="file-drag-div"><div class="preview-new-psd">' + d.v_new_psd_file + '</div></td>';
+                rightBorder = 'border-right: 1px solid #ddd;'
+            }
+        }
+
         
         if (d.user_type == 'Admin' || d.user_type == 'Designer' || d.user_type == 'Manager') {
-            imageHtml = '<div style="border-right: 1px solid #ddd;"><button class="btn btn-sm blue-madison image-upload-button">Upload</button><input type="file" class="image-file-input" style="display: none;" multiple/> <div class="preview-image">' + d.v_image + '</div></div>';
+            imageHtml = '<div style="'+ rightBorder +'"><button class="btn btn-sm blue-madison image-upload-button">Upload</button><input type="file" class="image-file-input" style="display: none;" multiple/> <div class="preview-image">' + d.v_image + '</div></div>';
             
-            newImageHtml = '<button class="btn btn-sm blue-madison new-image-upload-button">Upload</button><input type="file" class="new-image-file-input" style="display: none;" multiple/> <div class="preview-new-image">' + d.v_new_image + '</div>';
+            psdHTml = '<div style="'+ rightBorder +'"><button class="btn btn-sm blue-madison psd-upload-button">Upload</button><input type="file" class="psd-file-input" style="display: none;" multiple/> <div class="preview-psd">' + d.v_psd_file + '</div></div>';
 
-            psdHTml = '<div style="border-right: 1px solid #ddd;"><button class="btn btn-sm blue-madison psd-upload-button">Upload</button><input type="file" class="psd-file-input" style="display: none;" multiple/> <div class="preview-psd">' + d.v_psd_file + '</div></div>';
-
-            newPsdHtml = '<button class="btn btn-sm blue-madison new-psd-upload-button">Upload</button><input type="file" class="new-psd-file-input" style="display: none;" multiple/> <div class="preview-new-psd">' + d.v_new_psd_file + '</div>';
-
-            designNote = '<input type="text" name="v_designer_note" class="form-control input-sm designer-note" id="designer_note_' + d.id + '" rel="' + d.id + '" placeholder="Designer Note" value="' + d.designer_note + '" maxlength="500" style="width: 50%">';
+            designNote = '<textarea type="text" name="v_designer_note" class="form-control input-sm designer-note" id="designer_note_' + d.id + '" rel="' + d.id + '" placeholder="Designer Note" maxlength="500" style="width: 50%">' + d.designer_note + '</textarea>';
         }
 
         return '<table class="detail-row-table detail-row-' + d.id + '" cellpadding="5" cellspacing="0" border="0" style="width: 100%; padding-left:50px;" >' +
@@ -387,20 +407,22 @@ var project_array, TableAjax = function (t) {
                 '<td colspan="3">' + d.text + '</td>' +                
             '</tr>' +
             '<tr>' +
+            '<td><strong>Color: </strong></td>' +
+            '<td colspan="3">' + d.color + '</td>' +                
+        '</tr>' +
+            '<tr>' +
                 '<td><strong>Designer Note: </strong></td>' +
                 '<td  colspan="3">' + designNote + '</td>' +                
             '</tr>' +
             '<tr >' +
                 '<td class="file-drag-div" rel="' + d.id + '" rel1="Image" width="11%"><strong>Images: </strong></td>' +
                 '<td class="file-drag-div" rel="' + d.id + '" rel1="Image" width="39%">' + imageHtml + '</td>' +
-                '<td width="11%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage"><strong>New Images:</strong></td>' +
-                '<td width="39%" class="file-drag-div" rel="' + d.id + '" rel1="NewImage">' + newImageHtml + '</td>' +
+                newImageHtml +                
             '</tr>' +
             '<tr>'+
                 '<td class="file-drag-div" rel="' + d.id + '"  rel1="PSD"><strong>PSD: </strong></td>'+
                 '<td class="file-drag-div" rel="' + d.id + '"  rel1="PSD">' + psdHTml + '</td>' +
-                '<td class="file-drag-div" rel="' + d.id + '"  rel1="NEwPSD"><strong>New PSD:</strong></td>' +
-                '<td class="file-drag-div" rel="' + d.id + '"  rel1="NewPSD">' + newPsdHtml + '</td>' +
+                newPsdHtml +
             '</tr>' + 
             '</table>';
     }

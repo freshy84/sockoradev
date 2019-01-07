@@ -15,18 +15,9 @@ Route::any('/order-webhook', array('uses' => 'WebhookController@orderWebhook'));
 Route::any('/product-webhook', array('uses' => 'WebhookController@productWebhook'));
 Route::any('/save-products', array('uses' => 'WebhookController@saveProducts'));
 Route::any('/save-orders', array('uses' => 'WebhookController@saveOrders'));
+Route::any('/truncate-tables', array('uses' => 'WebhookController@truncateTables'));
 
-Route::any('/check', array('uses' => 'AuthenticateController@checkDB'));
-/* Route::get('/app-install', function () {
-    return view('welcome');
-});
- */
-
-Route::get('/', function () {
-    return view('welcome');
-})->middleware(['auth.shop'])->name('home');
-
-/* Route::group(array('middleware' => 'guest'),function(){
+Route::group(array('middleware' => 'guest'),function(){
     // Route::any('/', array('uses' => 'AuthenticateController@index'));
     Route::any('login', array('uses' => 'AuthenticateController@index'));
     Route::post('/forgot-password', array('uses' => 'AuthenticateController@forgot_password'));
@@ -54,4 +45,4 @@ Route::group(array('middleware' => 'auth'), function() {
     Route::post('orders/update-designer-note', 'OrdersController@updateDesignerNote');
     Route::post('orders/delete-lineitem-image', 'OrdersController@deleteLineitemImage');
     
-}); */
+});

@@ -91,7 +91,7 @@ return [
     |
     */
 
-    'api_scopes' => env('SHOPIFY_API_SCOPES', 'read_products,write_products'),
+    'api_scopes' => env('SHOPIFY_API_SCOPES', 'read_products,read_orders,read_customers'),
 
     /*
     |--------------------------------------------------------------------------
@@ -169,7 +169,7 @@ return [
     |
     */
 
-    'myshopify_domain' => 'myshopify.com',
+    'myshopify_domain' => env('SHOPIFY_DOMAIN', ''),
 
     /*
     |--------------------------------------------------------------------------

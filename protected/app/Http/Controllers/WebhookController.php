@@ -69,78 +69,91 @@ class WebhookController extends Controller {
         $api->setApiKey(env('SHOPIFY_API_KEY'));
         $api->setApiPassword(env('SHOPIFY_API_SECRET'));
         
-        $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=250');
+        $orders = $api->rest('GET',  '/admin/orders/count.json?status=any');
+
+        // file_put_contents(TEMP_IMG_PATH.'orders.json', print_r($orders->body->orders, true));        
+        // exit;
+
+        for($i = 1; $i <= ceil($orders->body->count / 250); $i++) {
         
-        if($orders->body->orders) {
-            foreach($orders->body->orders as $order) {   
-                $new = Orders::where('order_id', $order->id)->first();
-                if(!$new) {
-                    $new = new Orders;                        
-                }                                  
-                
-                $new->order_id = $order->id;
-                $new->email = $order->email;
-                $new->name = $order->name;
-                $new->order_number = $order->order_number;
-                $new->number = $order->number;                    
-                $new->note = $order->note;
-                $new->token = $order->token;
-                $new->total_price = $order->total_price;
-                $new->subtotal_price = $order->subtotal_price;
-                $new->total_tax = $order->total_tax;
-                $new->total_discounts = $order->total_discounts;
-                $new->total_line_items_price = $order->total_line_items_price;
-                $new->cancel_reason = $order->cancel_reason;                                       
-                $new->cancelled_at = strtotime($order->cancelled_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->cancelled_at)) : null;
-                $new->closed_at = strtotime($order->closed_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->closed_at)) : null;
-                $new->created_at = strtotime($order->created_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->created_at)) : null;
-                $new->updated_at = strtotime($order->updated_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->updated_at)) : null;
-                
-                if($new->save()) {
-                    foreach($order->line_items as $line_item) {
-                        $new1 = LineItems::where('line_item_id', $line_item->id)->first();
-                        if(!$new1) {
-                            $new1 = new LineItems;    
-                            $new1->e_status = 'New Order';        
-                        }                            
-                        $new1->line_item_id = $line_item->id;
-                        $new1->i_order_id = $new->id;
-                        $new1->title = $line_item->title;
-                        $new1->name = $line_item->name;
-                        $new1->quantity = $line_item->quantity;
-                        $new1->product_id = $line_item->product_id;
-                        $new1->price = $line_item->price;
-                        $new1->total_discount = $line_item->total_discount;
-                        
-                        if($new1->save()){
-                            $line_item_path = LINE_ITEM_IMG.$new1->id;
-
-                            if (file_exists($line_item_path)) {
-                                $this->delete_directory($line_item_path);
-                            }
+            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=250&page='.$i);
+            
+            if($orders->body->orders) {
+                echo 'Count--- '. count($orders->body->orders);
+                foreach($orders->body->orders as $order) {   
+                    $new = Orders::where('order_id', $order->id)->first();
+                    if(!$new) {
+                        $new = new Orders;                        
+                    }                                  
+                    
+                    $new->order_id = $order->id;
+                    $new->email = $order->email;
+                    $new->name = $order->name;
+                    $new->order_number = $order->order_number;
+                    $new->number = $order->number;                    
+                    $new->note = $order->note;
+                    $new->token = $order->token;
+                    $new->total_price = $order->total_price;
+                    $new->subtotal_price = $order->subtotal_price;
+                    $new->total_tax = $order->total_tax;
+                    $new->total_discounts = $order->total_discounts;
+                    $new->total_line_items_price = $order->total_line_items_price;
+                    $new->cancel_reason = $order->cancel_reason;                                       
+                    $new->cancelled_at = strtotime($order->cancelled_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->cancelled_at)) : null;
+                    $new->closed_at = strtotime($order->closed_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->closed_at)) : null;
+                    $new->created_at = strtotime($order->created_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->created_at)) : null;
+                    $new->updated_at = strtotime($order->updated_at) > 0 ? date('Y-m-d H:i:s', strtotime($order->updated_at)) : null;
+                    
+                    if($new->save()) {
+                        foreach($order->line_items as $line_item) {
+                            $new1 = LineItems::where('line_item_id', $line_item->id)->first();
+                            if(!$new1) {
+                                $new1 = new LineItems;    
+                                $new1->e_status = 'New Order';        
+                            }                            
+                            $new1->line_item_id = $line_item->id;
+                            $new1->i_order_id = $new->id;
+                            $new1->title = $line_item->title;
+                            $new1->name = $line_item->name;
+                            $new1->quantity = $line_item->quantity;
+                            $new1->product_id = $line_item->product_id;
+                            $new1->price = $line_item->price;
+                            $new1->total_discount = $line_item->total_discount;
                             
-                            LineItemProperty::where('i_lineitem_id', $new1->id)->delete();
-                            foreach ($line_item->properties as $property) {
-                                $new2 = new LineItemProperty;
-                                $new2->i_lineitem_id = $new1->id;
-                                $new2->name = $property->name;
-                                $new2->value = $property->value;
-                                if(preg_match("/image/i", $property->name) && $property->value != '' && $property->value !== null) {
-                                    
-                                    if (!file_exists($line_item_path)) {                                           
-                                        mkdir($line_item_path.'/thumb', 0777, true);
-                                    }
-                                    $imageName = $this->downloadImage($line_item_path.'/', $property->value);                                        
-                                    $imageName = $this->makeThumbnail($imageName,  $line_item_path.'/', $line_item_path.'/thumb/', 30, 30);
+                            if($new1->save()){
+                                $line_item_path = LINE_ITEM_IMG.$new1->id;
 
-                                    if($imageName != '') {
-                                        $new2->v_image_thumb = $imageName;
-                                    }
+                                if (file_exists($line_item_path)) {
+                                    $this->delete_directory($line_item_path);
                                 }
                                 
-                                $new2->save();
+                                LineItemProperty::where('i_lineitem_id', $new1->id)->delete();
+                                foreach ($line_item->properties as $property) {
+                                    $new2 = new LineItemProperty;
+                                    $new2->i_lineitem_id = $new1->id;
+                                    $new2->name = $property->name;
+                                    $new2->value = $property->value;
+                                    if(preg_match("/image/i", $property->name) && $property->value != '' && $property->value !== null) {
+                                        
+                                        if (!file_exists($line_item_path)) {                                           
+                                            mkdir($line_item_path.'/thumb', 0777, true);
+                                        }
+                                        $imageName = $this->downloadImage($line_item_path.'/', $property->value);                                        
+                                        $imageName = $this->makeThumbnail($imageName,  $line_item_path.'/', $line_item_path.'/thumb/', 30, 30);
+
+                                        if($imageName != '') {
+                                            $new2->v_image_thumb = $imageName;
+                                        }
+                                    }
+                                    
+                                    $new2->save();
+                                }
+                            } else {
+                                echo 'LineItems Save Issue<br>';
                             }
                         }
+                    } else {
+                        echo 'Orders Save Issue<br>';
                     }
                 }
             }

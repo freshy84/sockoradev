@@ -71,7 +71,7 @@ class Controller extends BaseController
             } */
             
             $thumb_create = imagecreatetruecolor($thumb_width, $thumb_height);
-            $file_ext = pathinfo($filename, PATHINFO_EXTENSION);
+            $file_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
             switch($file_ext){
                 case 'jpg':
                     $source = imagecreatefromjpeg($source_image);
@@ -86,7 +86,7 @@ class Controller extends BaseController
                 case 'gif':
                     $source = imagecreatefromgif($source_image);
                     break;
-                default:
+                default:                   
                     $source = imagecreatefromjpeg($source_image);
             }
         

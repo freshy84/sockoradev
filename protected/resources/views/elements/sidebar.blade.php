@@ -35,12 +35,14 @@
                 <span class="<?= $curr_controller == "Authenticate" && $curr_action == "dashboard" ? 'selected' : null ?>"></span>
             </a>
         </li>
+        
         <li class="<?= $curr_controller == "Users" ? 'active' : null ?>">
             <a href="{{action('UsersController@getIndex')}}" data-container="body" data-placement="bottom" data-html="true" >
                 <i class="fa fa-users"></i>
                 <span class="title">Users</span>
             </a>
         </li>
+        
 
         <li class="<?= $curr_controller == "Orders" ? 'active' : null ?>">
             <a href="{{action('OrdersController@getIndex')}}" data-container="body" data-placement="bottom" data-html="true" >

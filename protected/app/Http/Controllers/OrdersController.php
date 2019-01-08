@@ -15,7 +15,7 @@ class OrdersController extends Controller {
         // DB::enableQueryLog();
         $authUser = auth()->guard('admin')->user();
         $data = $request->all();
-        $sortColumn = array('order_name', 'order_name', 'lineitems.title', 'id', 'id', 'quantity', 'product_type', 'e_status');
+        $sortColumn = array('order_name', 'order_name', 'lineitems.title', 'order_name', 'order_name', 'quantity', 'product_type', 'e_status');
         $query = new LineItems;
         $query = $query->with('properties');
         $query = $query->join('orders', 'orders.id', 'lineitems.i_order_id');

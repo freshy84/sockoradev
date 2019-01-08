@@ -60,7 +60,7 @@ class WebhookController extends Controller {
         // }
     }
 
-    public function saveOrders() {
+    public function saveOrders($limit, $page) {
         
        /*  $shop = Shops::where('shopify_domain', env('SHOPIFY_DOMAIN'))->first();
         if($shop) { */
@@ -76,9 +76,9 @@ class WebhookController extends Controller {
         // file_put_contents(TEMP_IMG_PATH.'orders.json', print_r($orders->body->orders, true));        
         // exit;
 
-        for($i = 1; $i <= 20; $i++) {        
-            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=20&page='.$i);
-            echo $i .' ==> '.count($orders->body->orders).'<br>';
+        // for($i = 1; $i <= 20; $i++) {        
+            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit='.$limit.'&page='.$page);
+            echo $page .' ==> '.count($orders->body->orders).'<br>';
             if($orders->body->orders) {                
                 foreach($orders->body->orders as $order) {   
                     $new = Orders::where('order_id', $order->id)->first();
@@ -157,7 +157,7 @@ class WebhookController extends Controller {
                     }
                 }
             }
-        }
+        // }
 
         echo 'success.';
             

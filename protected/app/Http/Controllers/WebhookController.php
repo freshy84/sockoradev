@@ -26,34 +26,39 @@ class WebhookController extends Controller {
         $api->setShop(env('SHOPIFY_DOMAIN'));
         $api->setAccessToken($shop->shopify_token); */
 
-        $products = $api->rest('GET',  '/admin/products.json');
-       
-        if($products->body->products) {
-            foreach($products->body->products as $product) {
-                $new = Products::where('product_id', $product->id)->first();
-                if(!$new) {
-                    $new = new Products;
-                }
+        $productCount = $api->rest('GET',  '/admin/products/count.json?status=any');
+      
+        for ($i = 1; $i <= ceil($productCount->body->count / 50); $i++) { 
+            
+            $products = $api->rest('GET',  '/admin/products.json?status=any&limit=50&page='.$i);
 
-                $images = [];
-                foreach ($product->images as $image) {
-                    $images[] = ['id' => $image->id, 'src' => $image->src];
-                }                   
-                
-                $new->product_id = $product->id;
-                $new->title = $product->title;
-                $new->body_html = $product->body_html;
-                $new->vendor = $product->vendor;
-                $new->tags = $product->tags;
-                $new->product_type = $product->product_type == '' || $product->product_type == 'null' ? null : $product->product_type;
-                $new->images = json_encode($images);
-                $new->image = isset($product->image->src) ? $product->image->src : null;
-                
-                $new->published_at = strtotime($product->published_at) > 0 ? date('Y-m-d H:i:s', strtotime($product->published_at)) : null;
-                $new->created_at = strtotime($product->published_at) > 0 ? date('Y-m-d H:i:s', strtotime($product->created_at)) : null;
-                $new->updated_at = strtotime($product->published_at) > 0 ? date('Y-m-d H:i:s', strtotime($product->updated_at)) : null;
-                
-                $new->save();
+            if($products->body->products) {
+                foreach($products->body->products as $product) {
+                    $new = Products::where('product_id', $product->id)->first();
+                    if(!$new) {
+                        $new = new Products;
+                    }
+
+                    $images = [];
+                    foreach ($product->images as $image) {
+                        $images[] = ['id' => $image->id, 'src' => $image->src];
+                    }                   
+                    
+                    $new->product_id = $product->id;
+                    $new->title = $product->title;
+                    $new->body_html = $product->body_html;
+                    $new->vendor = $product->vendor;
+                    $new->tags = $product->tags;
+                    $new->product_type = $product->product_type == '' || $product->product_type == 'null' ? null : $product->product_type;
+                    $new->images = json_encode($images);
+                    $new->image = isset($product->image->src) ? $product->image->src : null;
+                    
+                    $new->published_at = strtotime($product->published_at) > 0 ? date('Y-m-d H:i:s', strtotime($product->published_at)) : null;
+                    $new->created_at = strtotime($product->published_at) > 0 ? date('Y-m-d H:i:s', strtotime($product->created_at)) : null;
+                    $new->updated_at = strtotime($product->published_at) > 0 ? date('Y-m-d H:i:s', strtotime($product->updated_at)) : null;
+                    
+                    $new->save();
+                }
             }
         }
         echo 'success.';            

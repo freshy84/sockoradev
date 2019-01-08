@@ -61,10 +61,7 @@ class WebhookController extends Controller {
     }
 
     public function saveOrders() {
-        for($i = 1; $i <= 20; $i++) {        
-            echo $i.'<br>';
-        }
-        exit;
+        
        /*  $shop = Shops::where('shopify_domain', env('SHOPIFY_DOMAIN'))->first();
         if($shop) { */
         $api = new BasicShopifyAPI(true); // true sets it to private

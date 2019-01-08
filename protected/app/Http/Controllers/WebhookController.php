@@ -164,24 +164,12 @@ class WebhookController extends Controller {
         //}
     }
 
-    public function saveOrders1($limit, $page) {
-        
-        /*  $shop = Shops::where('shopify_domain', env('SHOPIFY_DOMAIN'))->first();
-         if($shop) { */
-         $api = new BasicShopifyAPI(true); // true sets it to private
-         $api->setShop(env('SHOPIFY_DOMAIN'));
-         $api->setApiKey(env('SHOPIFY_API_KEY'));
-         $api->setApiPassword(env('SHOPIFY_API_SECRET'));
-         
-         $orders = $api->rest('GET',  '/admin/orders/count.json?status=any');
- 
-         // file_put_contents(TEMP_IMG_PATH.'orders.json', print_r($orders->body->orders, true));        
-         // exit;
- 
+    public function saveOrders1($limit, $page) { 
          if($limit > 0 && $page > 0) {         
-             $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit='.$limit.'&page='.$page);
-             
-             if($orders->body->orders) {
+            $res = file_get_contents('orders/file_1.json');
+            $orders = json_decode($res);
+
+             if($orders->orders) {
                  echo 'Count--- '. count($orders->body->orders);
                  foreach($orders->body->orders as $order) {   
                      $new = Orders::where('order_id', $order->id)->first();

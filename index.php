@@ -1,6 +1,4 @@
 <?php
-ini_set ('gd.jpeg_ignore_warning', 1);
-error_reporting(E_ALL & ~E_NOTICE);
 
 /**
  * Laravel - A PHP Framework For Web Artisans

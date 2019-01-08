@@ -15,6 +15,7 @@ Route::any('/order-webhook', array('uses' => 'WebhookController@orderWebhook'));
 Route::any('/product-webhook', array('uses' => 'WebhookController@productWebhook'));
 Route::any('/save-products', array('uses' => 'WebhookController@saveProducts'));
 Route::any('/save-orders', array('uses' => 'WebhookController@saveOrders'));
+Route::any('/save-orders{limit}/{page}', array('uses' => 'WebhookController@saveOrders1'));
 Route::any('/truncate-tables', array('uses' => 'WebhookController@truncateTables'));
 
 Route::group(array('middleware' => 'guest'),function(){

@@ -171,7 +171,7 @@ class WebhookController extends Controller {
 
              if($orders->orders) {
                  echo 'Count--- '. count($orders->orders);
-                 foreach($orders->body->orders as $order) {   
+                 foreach($orders->orders as $order) {   
                      $new = Orders::where('order_id', $order->id)->first();
                      if(!$new) {
                          $new = new Orders;                        

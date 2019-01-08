@@ -61,7 +61,10 @@ class WebhookController extends Controller {
     }
 
     public function saveOrders() {
-        
+        for($i = 1; $i <= 20; $i++) {        
+            echo $i.'<br>';
+        }
+        exit;
        /*  $shop = Shops::where('shopify_domain', env('SHOPIFY_DOMAIN'))->first();
         if($shop) { */
         $api = new BasicShopifyAPI(true); // true sets it to private
@@ -69,17 +72,17 @@ class WebhookController extends Controller {
         $api->setApiKey(env('SHOPIFY_API_KEY'));
         $api->setApiPassword(env('SHOPIFY_API_SECRET'));
         
-        $orders = $api->rest('GET',  '/admin/orders/count.json?status=any');
+        // $orders = $api->rest('GET',  '/admin/orders/count.json?status=any');
+        
+       
 
         // file_put_contents(TEMP_IMG_PATH.'orders.json', print_r($orders->body->orders, true));        
         // exit;
 
-        for($i = 1; $i <= ceil($orders->body->count / 250); $i++) {
-        
-            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=250&page='.$i);
-            
-            if($orders->body->orders) {
-                echo 'Count--- '. count($orders->body->orders);
+        for($i = 1; $i <= 20; $i++) {        
+            $orders = $api->rest('GET',  '/admin/orders.json?status=any&limit=20&page='.$i);
+            echo $i .' ==> '.count($orders->body->orders).'<br>';
+            if($orders->body->orders) {                
                 foreach($orders->body->orders as $order) {   
                     $new = Orders::where('order_id', $order->id)->first();
                     if(!$new) {

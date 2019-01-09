@@ -172,11 +172,11 @@ class OrdersController extends Controller {
             $noOfFaces = '';
 
             foreach ($val['properties'] as $k1 => $v1) {
-                if(preg_match("/color/i", $v1['name'])) {
+                if(preg_match("/color/i", $v1['name']) || preg_match("/Color/i", $v1['name'])) {
                     $color = $v1['value'];
-                } else if($v1['name'] == 'Text' || $v1['name'] == 'text') {
+                } else if( preg_match("/Text/i", $v1['name']) || preg_match("/text/i", $v1['name'])) {
                     $text = $v1['value'];
-                } else if(preg_match("/image/i", $v1['name'])) {
+                } else if(preg_match("/image/i", $v1['name']) || preg_match("/Image/i", $v1['name'])) {
                    $image .= '<a class="mr5" data-fancybox="gallery'.$v1['i_lineitem_id'].'" href="'.$v1['value'].'" data-fancybox-group="gallery" data-caption="'.  $val['order_name'] . ' - ' .$val['title'] .'"><img class="line-item-img" src="'.SITE_URL.LINE_ITEM_IMG.$v1['i_lineitem_id'].'/thumb/'.$v1['v_image_thumb'].'" alt=""></a>';
                 } else if(preg_match("/Number of Faces/i", $v1['name'])) {
                     $noOfFaces = $v1['value'];

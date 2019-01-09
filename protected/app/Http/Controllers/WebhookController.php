@@ -204,7 +204,7 @@ class WebhookController extends Controller {
                             $new2->i_lineitem_id = $line_item->id;
                             $new2->name = $property['name'];
                             $new2->value = $property['value'];
-                            if(preg_match("/image/i", $property['name']) && $$property['value'] != '' && $property['value'] !== null) {
+                            if(preg_match("/image/i", $property['name']) && $property['value'] != '' && $property['value'] !== null) {
                                        
                                 if (!file_exists($line_item_path)) {                                           
                                     mkdir($line_item_path.'/thumb', 0777, true);

@@ -54,8 +54,10 @@ class OrdersController extends Controller {
         if(isset($data['i_quantity_max']) && $data['i_quantity_max'] != '') {
             $query = $query->where('quantity', '<=', $data['i_quantity_max']);
         } 
+        
+        $query = $query->whereNotNull('product_type')->where('product_type', '!=', 'OPTIONS_HIDDEN_PRODUCT');
 
-        $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name','products.product_type as product_type');
+        $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name', 'products.product_type as product_type');
         $rec_per_page = REC_PER_PAGE;
         if(isset($data['length'])){
             if($data['length'] == '-1') {

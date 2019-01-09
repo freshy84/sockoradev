@@ -172,7 +172,7 @@ class OrdersController extends Controller {
             $noOfFaces = '';
 
             foreach ($val['properties'] as $k1 => $v1) {
-                if($v1['name'] == 'Color' || $v1['name'] == 'color') {
+                if(preg_match("/color/i", $v1['name'])) {
                     $color = $v1['value'];
                 } else if($v1['name'] == 'Text' || $v1['name'] == 'text') {
                     $text = $v1['value'];

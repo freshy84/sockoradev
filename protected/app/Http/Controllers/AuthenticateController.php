@@ -61,7 +61,7 @@ class AuthenticateController extends Controller {
     public function dashboard(){
         $responseData = array();
         $responseData['User'] = Users::count();
-        $responseData['orders'] = LineItems::count();
+        $responseData['orders'] = LineItems::join('products', 'products.product_id', 'lineitems.product_id')->count();
         return view('authenticate.dashboard', array('title' => 'Dashboard','responseData' => $responseData));
 	}
 

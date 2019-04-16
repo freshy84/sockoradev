@@ -1,2 +1,4 @@
 files
 /protected/.env
+/.idea
+/protected/vendor/*

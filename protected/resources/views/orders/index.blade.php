@@ -30,7 +30,7 @@
 									</th>
 									<th width="15%">
 										Line Item
-									</th width="20%">
+									</th>
 									<th class="no-sort" width="20%">
 										Images
 									</th>									

@@ -50,6 +50,18 @@
                 <span class="title">Orders</span>
             </a>
         </li>
+        <li class="">
+            <a href="#">
+                <i class="fa fa-paint-brush"></i>
+                <span class="title">Design</span>
+            </a>
+        </li>
+        <li class="">
+            <a href="#">
+                <i class="fa fa-support"></i>
+                <span class="title">Support</span>
+            </a>
+        </li>
         
         <li class="<?= $curr_controller == "Authenticate" && $curr_action == "my_profile" ? 'active' : null ?> setting">
             <a href="{{action('AuthenticateController@my_profile')}}">

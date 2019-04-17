@@ -1,44 +1,29 @@
 <?php
 namespace App\Http\Controllers;
-use Hash, Mail, Session, Redirect, Validator, Excel, Cookie, DB, Config;
+use Hash, Mail, Redirect, Validator, Excel, Cookie, DB, Config;
 use App\Models\Orders, App\Models\Shops, App\Models\LineItems, App\Models\LineItemProperty;
 use Illuminate\Http\Request;
 use OhMyBrew\BasicShopifyAPI;
+use Illuminate\Support\Facades\Session;
 
 class OrdersController extends Controller {
 
-    public function export(){
-        $DBUSER="root";
-        $DBPASSWD="";
-        $DATABASE="sockoradev";
+    public function getIndex(Request $request) {
+        if($request->status == 'Design'){
+            return View('orders.design',array('title' => 'Orders List'));
 
-       // exec("mysqldump -u root -p sockoradev > my_database_dump.sql");
+        }elseif($request->status == 'Support'){
+            return View('orders.support',array('title' => 'Orders List'));
 
-        exec('mysqldump --user=dev --password=nd1lN5CXuyBz forge > file.sql');
-
-
-
-
-dd('home dump');
-
-
-        $filename = "backup-" . date("d-m-Y") . ".sql";
-        $mime = "application/x-gzip";
-
-        header( "Content-Type: " . $mime );
-        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
-
-        $cmd = "mysqldump -u $DBUSER --password=$DBPASSWD $DATABASE | gzip --best";
-
-        passthru( $cmd );
-
-        exit(0);
-    }
-
-    public function getIndex() {
+        }
         return View('orders.index',array('title' => 'Orders List'));
     }
-    
+
+    public function design(){
+        return View('orders.design',array('title' => 'Orders List'));
+    }
+
+
     public function anyListAjax(Request $request) {
         // DB::enableQueryLog();
         $authUser = auth()->guard('admin')->user();
@@ -81,9 +66,15 @@ dd('home dump');
         } 
         if(isset($data['i_quantity_max']) && $data['i_quantity_max'] != '') {
             $query = $query->where('quantity', '<=', $data['i_quantity_max']);
-        } 
-        
-        $query = $query->whereNotNull('product_type')->where('product_type', '!=', 'OPTIONS_HIDDEN_PRODUCT');
+        }
+        if(Session::get('status') == 'Design'){
+            $query = $query->whereNotNull('product_type')->where('product_type', '!=', 'OPTIONS_HIDDEN_PRODUCT')->whereIn('e_status', ['Redo', 'New Order']);
+        }elseif(Session::get('status') == 'Support'){
+            $query = $query->whereNotNull('product_type')->where('product_type', '!=', 'OPTIONS_HIDDEN_PRODUCT')->where('e_status', 'Design Complete');
+        }else{
+            $query = $query->whereNotNull('product_type')->where('product_type', '!=', 'OPTIONS_HIDDEN_PRODUCT');
+        }
+
 
         $query = $query->select('lineitems.*', 'orders.id as order_id', 'orders.name as order_name', 'products.product_type as product_type');
         $rec_per_page = REC_PER_PAGE;
@@ -97,6 +88,7 @@ dd('home dump');
 
         $sort_order = $data['order']['0']['dir'];
         $order_field = $sortColumn[$data['order']['0']['column']];
+            //dd($sortColumn[$data['order']['0']['column']]);
       
         if($order_field == 'order_name') {
             $query = $query->orderBy('order_name', $sort_order)->orderBy('title', 'asc');
@@ -109,9 +101,16 @@ dd('home dump');
         $orders = $query->paginate($rec_per_page);
         // pr(DB::getQueryLog()); exit;
         $arrOrders = $orders->toArray();
-        
+        $exist_order = [];
         $returnData = [];
-        foreach($arrOrders['data'] as $key => $val) {
+        $key = 0;
+        foreach($arrOrders['data'] as  $val) {
+            if(in_array($val['order_name'], $exist_order)){
+                continue;
+            }
+            if($key > 9){
+                break;
+            }
             $index = 0;                
             // $returnData[$key][$index++] = '<span class="row-details row-details-close"></span>';
             $returnData[$key]['id'] = $val['id'];
@@ -232,6 +231,9 @@ dd('home dump');
             $returnData[$key]['line_item_status'] = $val['e_status'];
             $returnData[$key]['user_type'] = $authUser->e_user_type;
             $returnData[$key]['designer_note'] = $val['v_designer_note'] !== null ? $val['v_designer_note'] : '';
+
+            $exist_order[] = $val['order_name'];
+            $key++;
         }
 
         $return_data['data'] = $returnData;
@@ -239,7 +241,7 @@ dd('home dump');
         $return_data['recordsFiltered'] = $arrOrders['total'];
         $return_data['data_array'] = $arrOrders['data'];
 
-        // return response()->json($return_data);
+
         return $return_data;
         
     }

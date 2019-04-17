@@ -11,9 +11,6 @@
 |
 */
 
-Route::get('export', 'OrdersController@export');
-
-
 Route::any('/order-webhook', array('uses' => 'WebhookController@orderWebhook'));
 Route::any('/product-webhook', array('uses' => 'WebhookController@productWebhook'));
 Route::any('/save-products', array('uses' => 'WebhookController@saveProducts'));
@@ -43,6 +40,7 @@ Route::group(array('middleware' => 'auth'), function() {
     
     Route::any('orders', 'OrdersController@getIndex');
     Route::any('orders/list-ajax', 'OrdersController@anyListAjax');
+    Route::any('design/list-ajax', 'OrdersController@anyListAjax');
     Route::any('orders/edit/{id}', 'OrdersController@anyEdit');
     Route::post('orders/change-status', 'OrdersController@changeLineItemStatus');
     Route::post('orders/upload-lineitem-image', 'OrdersController@uploadLineitemIimage');

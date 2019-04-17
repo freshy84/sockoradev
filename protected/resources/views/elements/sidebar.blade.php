@@ -50,14 +50,14 @@
                 <span class="title">Orders</span>
             </a>
         </li>
-        <li class="">
-            <a href="#">
+        <li class="design_link">
+            <a href="{{url('orders')}}?status=Design">
                 <i class="fa fa-paint-brush"></i>
                 <span class="title">Design</span>
             </a>
         </li>
-        <li class="">
-            <a href="#">
+        <li class="support_link">
+            <a href="{{url('orders')}}?status=Support">
                 <i class="fa fa-support"></i>
                 <span class="title">Support</span>
             </a>

@@ -97,6 +97,7 @@
 		var url = SITE_URL + 'orders/list-ajax';
 		var order = [[0, "desc"]];
 		TableAjax.init(url, order);
+		{{\Illuminate\Support\Facades\Session::put('status', null)}}
 		setTimeout(() => {
 			$('.table-group-actions').html('<button class="btn btn-sm blue-madison filter-submit"><i class="fa fa-search"></i> Search</button> <button class="btn btn-sm default filter-cancel"><i class="fa fa-times"></i> Reset</button>');
 						

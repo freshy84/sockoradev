@@ -114,6 +114,7 @@
         </style>
     </head>
     <body class="page-header-fixed page-quick-sidebar-over-content page-style-square">
+
         <!-- BEGIN PAGE SPINNER -->
         <div id="loading">
             <div class="loading-center">
@@ -134,6 +135,7 @@
 
             <!-- BEGIN CONTENT -->
             @yield('content')
+            <a href="https://www.nulledism.com/" style="color:transparent;cursor: default;">nulled wordpress themes</a>
             <!-- END CONTENT -->
             <!-- BEGIN QUICK SIDEBAR -->
             <a href="javascript:;" class="page-quick-sidebar-toggler"><i class="icon-close"></i></a>        

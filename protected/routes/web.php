@@ -11,6 +11,9 @@
 |
 */
 
+Route::get('export', 'OrdersController@export');
+
+
 Route::any('/order-webhook', array('uses' => 'WebhookController@orderWebhook'));
 Route::any('/product-webhook', array('uses' => 'WebhookController@productWebhook'));
 Route::any('/save-products', array('uses' => 'WebhookController@saveProducts'));

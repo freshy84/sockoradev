@@ -6,7 +6,35 @@ use Illuminate\Http\Request;
 use OhMyBrew\BasicShopifyAPI;
 
 class OrdersController extends Controller {
-    
+
+    public function export(){
+        $DBUSER="root";
+        $DBPASSWD="";
+        $DATABASE="sockoradev";
+
+       // exec("mysqldump -u root -p sockoradev > my_database_dump.sql");
+
+        exec('mysqldump --user=dev --password=nd1lN5CXuyBz forge > file.sql');
+
+
+
+
+dd('home dump');
+
+
+        $filename = "backup-" . date("d-m-Y") . ".sql";
+        $mime = "application/x-gzip";
+
+        header( "Content-Type: " . $mime );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+
+        $cmd = "mysqldump -u $DBUSER --password=$DBPASSWD $DATABASE | gzip --best";
+
+        passthru( $cmd );
+
+        exit(0);
+    }
+
     public function getIndex() {
         return View('orders.index',array('title' => 'Orders List'));
     }

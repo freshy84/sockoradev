@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Notifications\OrderNotification;
 use Hash, Mail, Redirect, Validator, Excel, Cookie, DB, Config;
 use App\Models\Orders, App\Models\Shops, App\Models\LineItems, App\Models\LineItemProperty;
 use Illuminate\Http\Request;
@@ -254,6 +255,21 @@ class OrdersController extends Controller {
             if($order) {
                 $order->e_status = $data['status'];
                 $order->save();
+
+                if($data['status'] == 'New Order' || $data['status'] == 'Redo'){
+                    $status = $data['status'];
+                    $channel = '#design';
+                    $order_number = $order->i_order_id;
+                    $order = new Orders();
+                    $order->notify(new OrderNotification($status, $channel, $order_number));
+                }
+                if($data['status'] == 'Design Complete'){
+                    $status = $data['status'];
+                    $channel = '#support';
+                    $order_number = $order->i_order_id;
+                    $order = new Orders();
+                    $order->notify(new OrderNotification($status, $channel, $order_number));
+                }
 
                 return 'TRUE';
             }

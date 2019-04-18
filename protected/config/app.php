@@ -161,7 +161,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        \OhMyBrew\ShopifyApp\ShopifyAppProvider::class
+        \OhMyBrew\ShopifyApp\ShopifyAppProvider::class,
 
     ],
 
@@ -211,7 +211,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'ShopifyApp' => \OhMyBrew\ShopifyApp\Facades\ShopifyApp::class
+        'ShopifyApp' => \OhMyBrew\ShopifyApp\Facades\ShopifyApp::class,
     ],
 
 ];

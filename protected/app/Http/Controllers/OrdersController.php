@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Session;
 class OrdersController extends Controller {
 
     public function getIndex(Request $request) {
+        $status = 'sdfsdf';
+        $channel = '#support';
+        $order_number = 234234;
+        $order = new Orders();
+        $order->notify(new OrderNotification($status, $channel, $order_number));
+
+        dd('werew');
         if($request->status == 'Design'){
             return View('orders.design',array('title' => 'Orders List'));
 

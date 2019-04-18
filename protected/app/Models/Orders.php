@@ -14,7 +14,7 @@ class Orders extends Model {
     }
 
     public function routeNotificationForSlack() {
-        return env('SLACK_WEBHOOK_URL');
+        return 'https://hooks.slack.com/services/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';
     }
 }
 ?>

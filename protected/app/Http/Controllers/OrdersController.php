@@ -250,8 +250,13 @@ class OrdersController extends Controller {
     public function changeLineItemStatus(Request $request) {
         $data = $request->all();
        
+       
         if(isset($data['status']) && isset($data['line_item_id'])) {
-            $order = LineItems::find($data['line_item_id']);
+            //$order = LineItems::find($data['line_item_id']);
+            $order = LineItems::where('lineitems.id', $request->line_item_id)
+                ->select('lineitems.*', 'orders.name as order_name')
+                ->join('orders', 'orders.id', 'lineitems.i_order_id')
+                 ->first();
             if($order) {
                 $order->e_status = $data['status'];
                 $order->save();
@@ -259,14 +264,14 @@ class OrdersController extends Controller {
                 if($data['status'] == 'New Order' || $data['status'] == 'Redo'){
                     $status = $data['status'];
                     $channel = '#design';
-                    $order_number = $order->i_order_id;
+                    $order_number = $order->order_name;
                     $order = new Orders();
                     $order->notify(new OrderNotification($status, $channel, $order_number));
                 }
                 if($data['status'] == 'Design Complete'){
                     $status = $data['status'];
                     $channel = '#support';
-                    $order_number = $order->i_order_id;
+                    $order_number = $order->order_name;
                     $order = new Orders();
                     $order->notify(new OrderNotification($status, $channel, $order_number));
                 }

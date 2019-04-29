@@ -252,12 +252,16 @@ class OrdersController extends Controller {
        
        
         if(isset($data['status']) && isset($data['line_item_id'])) {
+
             //$order = LineItems::find($data['line_item_id']);
             $order = LineItems::where('lineitems.id', $request->line_item_id)
                 ->select('lineitems.*', 'orders.name as order_name')
                 ->join('orders', 'orders.id', 'lineitems.i_order_id')
                  ->first();
             if($order) {
+
+            $order = LineItems::find($data['line_item_id']);
+                if($order) {
                 $order->e_status = $data['status'];
                 $order->save();
 

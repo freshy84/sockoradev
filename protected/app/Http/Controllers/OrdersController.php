@@ -252,7 +252,7 @@ class OrdersController extends Controller {
        
         if(isset($data['status']) && isset($data['line_item_id'])) {
             $order = LineItems::find($data['line_item_id']);
-            if($order) {
+                if($order) {
                 $order->e_status = $data['status'];
                 $order->save();
 

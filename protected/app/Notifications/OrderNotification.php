@@ -56,7 +56,7 @@ class OrderNotification extends Notification
             ->content('Order status changed')
             ->attachment(function ($attachment) use ($order_number, $status) {
                 $attachment->fields([
-                    'Order' => '#'.$order_number,
+                    'Order' => $order_number,
                     'Status' => $status
                 ]);
             });

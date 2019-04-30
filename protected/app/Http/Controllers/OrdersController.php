@@ -247,43 +247,45 @@ class OrdersController extends Controller {
         
     }
 
-    public function changeLineItemStatus(Request $request) {
+    public function changeLineItemStatus(Request $request)
+    {
         $data = $request->all();
-       
-       
-        if(isset($data['status']) && isset($data['line_item_id'])) {
+
+
+        if (isset($data['status']) && isset($data['line_item_id'])) {
 
             //$order = LineItems::find($data['line_item_id']);
             $order = LineItems::where('lineitems.id', $request->line_item_id)
                 ->select('lineitems.*', 'orders.name as order_name')
                 ->join('orders', 'orders.id', 'lineitems.i_order_id')
-                 ->first();
-            if($order) {
+                ->first();
+            if ($order) {
 
-            $order = LineItems::find($data['line_item_id']);
-                if($order) {
-                $order->e_status = $data['status'];
-                $order->save();
+                $order = LineItems::find($data['line_item_id']);
+                if ($order) {
+                    $order->e_status = $data['status'];
+                    $order->save();
 
-                if($data['status'] == 'New Order' || $data['status'] == 'Redo'){
-                    $status = $data['status'];
-                    $channel = '#design';
-                    $order_number = $order->order_name;
-                    $order = new Orders();
-                    $order->notify(new OrderNotification($status, $channel, $order_number));
+                    if ($data['status'] == 'New Order' || $data['status'] == 'Redo') {
+                        $status = $data['status'];
+                        $channel = '#design';
+                        $order_number = $order->order_name;
+                        $order = new Orders();
+                        $order->notify(new OrderNotification($status, $channel, $order_number));
+                    }
+                    if ($data['status'] == 'Design Complete') {
+                        $status = $data['status'];
+                        $channel = '#support';
+                        $order_number = $order->order_name;
+                        $order = new Orders();
+                        $order->notify(new OrderNotification($status, $channel, $order_number));
+                    }
+
+                    return 'TRUE';
                 }
-                if($data['status'] == 'Design Complete'){
-                    $status = $data['status'];
-                    $channel = '#support';
-                    $order_number = $order->order_name;
-                    $order = new Orders();
-                    $order->notify(new OrderNotification($status, $channel, $order_number));
-                }
-
-                return 'TRUE';
             }
+            return 'FALSE';
         }
-        return 'FALSE';
     }
     public function updateDesignerNote(Request $request) {
             $data = $request->all();
